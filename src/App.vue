@@ -21,7 +21,6 @@
 #nav {
   width: 100%;
   padding: 30px;
-  height: 40px;
 }
 
 #nav a {
