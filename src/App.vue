@@ -1,19 +1,31 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <div id="lNav" class="navHalf">
-        <span v-if="$store.state.userProfile.loggedIn">{{ $store.state.userProfile.docData.firstName }}</span>
-        <router-link to="/">Home</router-link> |
-        <router-link to="/about">About</router-link>
+    <!-- 
+      Before loading in, wait until userProfile has been set and we
+      know if user is signed in or not.
+     -->
+    <div v-if="$store.state.userProfile != null">
+      <div id="nav">
+        <div id="lNav" class="navHalf">
+          <router-link to="/">Home</router-link> |
+          <router-link to="/about">About</router-link>
+        </div>
+        <div id="tempLogo"></div>
+        <div id="rNav" class="navHalf">
+          <div v-if="!$store.state.userProfile.loggedIn">
+            <router-link to="/login">Log In</router-link> | 
+            <router-link to="/signup">Sign Up</router-link>
+          </div>
+          <div v-else>
+            <a @click="signOut">Sign Out</a>
+          </div>
+        </div>
       </div>
-      <div id="tempLogo"></div>
-      <div id="rNav" class="navHalf">
-        <router-link to="/login">Log In</router-link> | 
-        <router-link to="/signup">Sign Up</router-link>
-        <button @click="signOut">Sign Out</button>
-      </div>
+      <router-view/>
     </div>
-    <router-view/>
+    <div v-else>
+      <div class="loader"></div>
+    </div>
   </div>
 </template>
 
@@ -72,10 +84,12 @@ body {
 #nav a {
   font-weight: bold;
   color: #f3fcf0;
+  text-decoration: underline;
 }
 
 #nav a:hover {
   color: #FFA987;
+  cursor: pointer;
 }
 
 #nav a.router-link-exact-active {

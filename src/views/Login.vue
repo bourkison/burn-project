@@ -38,12 +38,9 @@ export default {
     methods: {
         signIn: function() {
             this.isLoading = true;
-            console.log("uProfile", this.$store.state.userProfile);
-            console.log(this.signInForm.email);
 
-            auth.signInWithEmailAndPassword(this.signInForm.email, this.signInForm.password).then(() => { console.log('signedIn') }).catch(e => {
+            auth.signInWithEmailAndPassword(this.signInForm.email, this.signInForm.password).then().catch(e => {
                 this.errorMEssage = "Error signing in: " + e;
-                console.log(e)
                 this.isLoading = false;
             });
         }

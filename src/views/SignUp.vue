@@ -45,7 +45,7 @@ export default {
                 userCollection.doc(user.user.uid).set({ 
                     firstName: "Test First Name",
                     surname: "Test Surname",
-                    dob: new Date(1997, 12, 5),
+                    dob: new Date(1997, 11, 5),
                     height: 194,
                     weight: 88,
                     location: "Sydney, Australia"

@@ -17,7 +17,20 @@ firebase.analytics();
 
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 const userCollection = db.collection("users");
 
-export { db, auth, userCollection }
+// Function waits for login to happen, and is called in guarded routes.
+// Fixes the problem of instantly getting redirected on guarded routes when
+// firebase hasn't had time to log in yet.
+firebase.getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            unsubscribe();
+            resolve(user)
+        }, reject);
+    })
+};
+
+export { db, auth, userCollection, storage }
