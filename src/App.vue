@@ -2,7 +2,7 @@
   <div id="app">
     <div id="nav">
       <div id="lNav" class="navHalf">
-        <span v-if="$store.state.userProfile.loggedIn">{{ $store.state.userProfile.loggedIn }}</span>
+        <span v-if="$store.state.userProfile.loggedIn">{{ $store.state.userProfile.docData.firstName }}</span>
         <router-link to="/">Home</router-link> |
         <router-link to="/about">About</router-link>
       </div>

@@ -25,8 +25,9 @@ export default new Vuex.Store({
 
         if (userProfile.exists) {
           commit("setLoggedInUser", { loggedIn: true, data: user, docData: userProfile.data() });
-          
-          if (router.name == "Sign Up" || router.name == "Login") {
+          console.log(router.history.current.name);
+
+          if (router.history.current.name == "Sign Up" || router.history.current.name == "Login") {
             router.push("/");
           }
         } else {
