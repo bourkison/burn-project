@@ -18,6 +18,6 @@ firebase.analytics();
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-const usersCollection = db.collection("users");
+const userCollection = db.collection("users");
 
-export { db, auth, usersCollection }
+export { db, auth, userCollection }

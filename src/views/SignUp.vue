@@ -20,9 +20,7 @@
 </template>
 
 <script>
-import { db, auth, usersCollection } from '../firebase'
-
-console.log(usersCollection);
+import { auth, userCollection } from '../firebase'
 
 export default {
     data() {
@@ -44,7 +42,7 @@ export default {
 
             auth.createUserWithEmailAndPassword(this.signUpForm.email, this.signUpForm.password).then(user => {
                 // User now created in Auth system. We now need to create User in Firestore.
-                db.collection("user").doc(user.user.uid).set({ 
+                userCollection.doc(user.user.uid).set({ 
                     firstName: "Test First Name",
                     surname: "Test Surname",
                     dob: new Date(1997, 12, 5),
@@ -83,7 +81,7 @@ export default {
     }
 
     .loader {
-        margin-top: 115px;
+        margin-top: 100px;
     }
 
     input {

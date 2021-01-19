@@ -1,41 +1,43 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { auth, usersCollection } from '../firebase'
+import { auth, userCollection } from '../firebase'
 import router from '../router'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userProfile: {}
+    userProfile: { loggedIn: false, user: null, docData: null }
   },
   mutations: {
     setLoggedInUser: function(state, user) {
-      state.user = user;
+      state.userProfile = user;
+      console.log("store cl", user)
     }
   },
   actions: {
     async fetchUser({ commit }, user) {
       if (user) {
-        usersCollection.doc(user.uid).get().then(userDoc => {
-          if (userDoc) {
-            commit("setLoggedInUser",  {loggedIn: true, data: user, docData: userDoc.data() });
+        const userProfile = await userCollection.doc(user.uid).get()
 
-            if (router.name == "Sign Up" || router.name == "Sign In") {
-              router.push("/");
-            }
-          } else {
-            console.log("User doc undefined. Signing out.")
-            auth.signOut();
+        console.log(user.uid)
+        console.log("USERPROFILE", userProfile.data());
+
+        if (userProfile.exists) {
+          commit("setLoggedInUser", { loggedIn: true, data: user, docData: userProfile.data() });
+          
+          if (router.name == "Sign Up" || router.name == "Login") {
+            router.push("/");
           }
-        }).catch(e => {
-          console.log("Error getting user doc. Logging user out. Please try again.", e);
+        } else {
+          console.log("User signed in but no doc data. Signing out.")
           auth.signOut();
-        })
+          commit("setLoggedInUser", { loggedIn: false, data: null, docData: null })
+        } 
       } else {
-        commit("setLoggedInUser", { loggedIn: false, user: null, docData: null })
+        commit("setLoggedInUser", { loggedIn: false, data: null, docData: null })
       }
-    }
+    } 
   },
   modules: {
   }

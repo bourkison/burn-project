@@ -2,17 +2,32 @@
   <div id="app">
     <div id="nav">
       <div id="lNav" class="navHalf">
+        <span v-if="$store.state.userProfile.loggedIn">{{ $store.state.userProfile.loggedIn }}</span>
         <router-link to="/">Home</router-link> |
         <router-link to="/about">About</router-link>
       </div>
       <div id="tempLogo"></div>
       <div id="rNav" class="navHalf">
+        <router-link to="/login">Log In</router-link> | 
         <router-link to="/signup">Sign Up</router-link>
+        <button @click="signOut">Sign Out</button>
       </div>
     </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+import { auth } from './firebase'
+
+export default {
+  methods: {
+    signOut: function() {
+      auth.signOut();
+    }
+  }
+}
+</script>
 
 <style>
 body {
