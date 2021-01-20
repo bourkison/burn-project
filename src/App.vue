@@ -8,7 +8,10 @@
       <div id="nav">
         <div id="lNav" class="navHalf">
           <router-link to="/">Home</router-link> |
-          <router-link to="/about">About</router-link>
+          <router-link to="/about">About</router-link> |
+          <div v-if="$store.state.userProfile.loggedIn" style="display:inline-block;margin:0;padding:0;">
+            <router-link to="/exercises/new">New Exercise</router-link>
+          </div>
         </div>
         <div id="tempLogo"></div>
         <div id="rNav" class="navHalf">
@@ -42,13 +45,18 @@ export default {
 </script>
 
 <style>
+ @font-face {
+    font-family: "Proxima Nova Rg";
+    src: url("./assets/fonts/ProximaNova-Regular.otf") format("opentype");
+  }
+
 body {
   background-color: #111418;
   margin: 0;
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Proxima Nova Rg", Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

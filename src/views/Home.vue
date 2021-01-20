@@ -21,11 +21,6 @@ export default {
 </script>
 
 <style scoped>
-  @font-face {
-    font-family: "Proxima Nova Rg";
-    src: url("../assets/fonts/ProximaNova-Regular.otf") format("opentype");
-  }
-
   #home {
     width: 968px;
     margin: 15px auto 0;

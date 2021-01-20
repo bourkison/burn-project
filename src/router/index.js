@@ -1,8 +1,10 @@
+import firebase from 'firebase'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+
 import Home from '../views/Home.vue'
-import Burn from '../views/Burn.vue'
-import firebase from 'firebase'
+import NewExercise from '../views/Exercises/NewExercise.vue'
+
 
 Vue.use(VueRouter)
 
@@ -34,12 +36,9 @@ const routes = [
     component: () => import(/*webpackChunkName: "signup" */ '../views/Login.vue')
   },
   {
-    path: '/burn',
-    name: 'Burn',
-    component: Burn,
-    meta: {
-      requiresAuth: true
-    }
+    path: '/exercises/new',
+    name: 'New Exercise',
+    component: NewExercise
   }
 ]
 
@@ -49,10 +48,10 @@ const router = new VueRouter({
   routes
 })
 
-// This function checks if user is logged in based on route metadata
+// This function checks if user is logged in based on route metadata.
+// Calls a promise in firebase.js to wait for user to log in (if on initial load).
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(x => x.meta.requiresAuth)
-  console.log(requiresAuth);
 
   if (requiresAuth && !await firebase.getCurrentUser()) {
     next('login')
