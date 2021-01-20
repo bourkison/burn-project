@@ -1,5 +1,5 @@
 <template>
-    <div class="signIn">
+    <!-- <div class="signIn">
         <div class="container">
             <h1>Sign In</h1>
             <form @submit.prevent v-if="!isLoading">
@@ -16,11 +16,49 @@
             </form>
             <div class="loader" v-if="isLoading"></div>
         </div>
-    </div>
+    </div> -->
+    <v-container>
+        <v-row>
+            <v-col cols="12" sm="2"><v-sheet rounded="lg" min-height="268" v-show="false"></v-sheet></v-col>
+            <v-col
+                cols="12"
+                sm="8"
+            >
+                <v-sheet
+                    rounded="lg"
+                >
+                    <v-container>
+                        <v-form>
+                            <h1 class="text-center">Login</h1>
+                            <v-text-field 
+                                v-model="signInForm.email" 
+                                label="Email" 
+                                :rules="[rules.required]" >
+                            </v-text-field
+                            ><v-text-field 
+                                v-model="signInForm.password" 
+                                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                                :rules="[rules.required]"
+                                :type="showPassword ? 'text' : 'password'"
+                                name="input-10-2"
+                                label="Password"
+                                class="input-group--focused"
+                                @click:append="showPassword = !showPassword"
+                            ></v-text-field>
+                            <div class="text-center">
+                                <v-btn @click="signIn">Sign In!</v-btn>
+                            </div>
+                        </v-form>
+                    </v-container>
+                </v-sheet>
+            </v-col>
+            <v-col cols="12" sm="2"><v-sheet rounded="lg" min-height="268" v-show="false"></v-sheet></v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <script>
-import { auth } from '../firebase';
+// import { auth } from '../firebase';
 
 
 export default {
@@ -31,18 +69,26 @@ export default {
                 email: '',
                 password: ''
             },
-            errorMessage: ''
+            errorMessage: '',
+            // Vuetify:
+            showPassword: false,
+            rules: {
+                required: value => !!value || 'Required.',
+                emailMatch: () => (`The email and password you entered don't match`)
+            }
         }
     },
 
     methods: {
         signIn: function() {
-            this.isLoading = true;
+            // this.isLoading = true;
 
-            auth.signInWithEmailAndPassword(this.signInForm.email, this.signInForm.password).then().catch(e => {
-                this.errorMEssage = "Error signing in: " + e;
-                this.isLoading = false;
-            });
+            // auth.signInWithEmailAndPassword(this.signInForm.email, this.signInForm.password).then().catch(e => {
+            //     this.errorMEssage = "Error signing in: " + e;
+            //     this.isLoading = false;
+            // });
+
+            console.log(this.signInForm.email)
         }
     }
 }

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="signUp">
         <div class="container">
             <h1>Sign Up</h1>
@@ -16,6 +16,23 @@
             </form>
             <div class="loader" v-if="isLoading"></div>
         </div>
+    </div>
+</template> -->
+
+<template>
+    <div class="signUp">
+        <v-form v-model="valid">
+            <v-text-field 
+                v-model="signUpForm.email" 
+                label="Email" 
+                required >
+            </v-text-field
+            ><v-text-field 
+                v-model="signUpForm.password" 
+                label="Password" 
+                :append-icon="show3 ? 'mdi-eye' : 'mdi-eye-off'"
+            ></v-text-field>
+        </v-form>
     </div>
 </template>
 
