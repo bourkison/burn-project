@@ -20,6 +20,7 @@ const auth = firebase.auth();
 const storage = firebase.storage();
 
 const userCollection = db.collection("users");
+const exerciseCollection = db.collection("exercises");
 
 // Function waits for login to happen, and is called in guarded routes.
 // Fixes the problem of instantly getting redirected on guarded routes when
@@ -33,4 +34,4 @@ firebase.getCurrentUser = () => {
     })
 };
 
-export { db, auth, userCollection, storage }
+export { db, auth, userCollection, exerciseCollection, storage }
