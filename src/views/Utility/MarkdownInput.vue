@@ -20,24 +20,46 @@
             </v-tabs>
         <v-tabs-items v-model="tab">
             <v-tab-item :value="'tab-1'">
-                <v-textarea label="Exercise Description" class="descText" full-width auto-grow>
-                </v-textarea>
+                <v-container>
+                    <v-textarea label="Exercise Description" full-width auto-grow @input="update" counter no-resize>
+                    </v-textarea>
+                </v-container>
             </v-tab-item>
 
             <v-tab-item :value="'tab-2'">
-                <v-card>Another</v-card>
+                <v-container>
+                    <v-card v-html="compiledMarkdown"></v-card>
+                </v-container>
             </v-tab-item>
         </v-tabs-items>
     </v-card>
 </template>
 
 <script>
+import * as marked from 'marked'
+import _ from 'lodash'
+
 export default {
     name: 'MarkdownInput',
     data() {
         return {
+            inputDescription: '',
+
+            //Vuetify: 
             tab: null
         }
+    },
+
+    computed: {
+        compiledMarkdown: function() {
+            return marked(this.inputDescription);
+        }
+    },
+
+    methods: {
+        update: _.debounce(function(e) {
+            this.inputDescription = e;
+        }, 300)
     }
 }
 </script>
