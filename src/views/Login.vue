@@ -68,8 +68,7 @@ export default {
         margin-top: 40px;
     }
 
-    .loginSheet,
-    .loginBtn {
+    .loginSheet {
         margin: 0 auto;
     }
 

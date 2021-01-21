@@ -7,7 +7,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userProfile: { loggedIn: false, data: null, docData: null }
+    userProfile: null,
+    activeNavTab: undefined
   },
   mutations: {
     setLoggedInUser: function(state, user) {
