@@ -21,14 +21,22 @@
         <v-tabs-items v-model="tab">
             <v-tab-item :value="'tab-1'">
                 <v-container>
-                    <v-textarea label="Exercise Description" full-width auto-grow @input="update" counter no-resize>
-                    </v-textarea>
+                    <v-textarea 
+                        label="Exercise Description" 
+                        full-width 
+                        auto-grow 
+                        @input="update" 
+                        counter 
+                        no-resize
+                        class="inputTextArea"
+                        :rules=[rules.required,rules.max]
+                    ></v-textarea>
                 </v-container>
             </v-tab-item>
 
             <v-tab-item :value="'tab-2'">
                 <v-container>
-                    <v-card v-html="compiledMarkdown"></v-card>
+                    <v-card class="mdOutput" v-html="compiledMarkdown"></v-card>
                 </v-container>
             </v-tab-item>
         </v-tabs-items>
@@ -46,7 +54,11 @@ export default {
             inputDescription: '',
 
             //Vuetify: 
-            tab: null
+            tab: null,
+            rules: {
+                required: value => !!value || 'Required.',
+                max: value => value.length <= 1024 || 'Max 1024 characters.'
+            }
         }
     },
 
@@ -67,5 +79,14 @@ export default {
 <style scoped>
     .descText {
         padding: 10px;
+    }
+
+    .mdOutput {
+        box-shadow: unset !important;
+    }
+
+    .inputTextArea {
+        max-height: 1024px;
+        overflow-y: auto;
     }
 </style>

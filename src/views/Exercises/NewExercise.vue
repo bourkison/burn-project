@@ -23,7 +23,7 @@
         <v-col cols="12" sm="8">
             <v-sheet min-height="70vh" rounded="lg">
                 <v-container>
-                    <h1>New Exercise</h1>
+                    <h1 align="center">{{ this.exerciseForm.name ? this.exerciseForm.name : 'New Exercise' }}</h1>
                     <v-form @submit.prevent="createExercise">
                         <v-text-field
                             v-model="exerciseForm.name"
@@ -80,5 +80,7 @@ export default {
 </script>
 
 <style scoped>
-
+    input {
+        margin-bottom: 10px;
+    }
 </style>
