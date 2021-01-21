@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userProfile: null
+    userProfile: { loggedIn: false, data: null, docData: null }
   },
   mutations: {
     setLoggedInUser: function(state, user) {
@@ -18,9 +18,10 @@ export default new Vuex.Store({
     // Fetch user gets called after firebase.onAuthChange
     // It pulls the user profile document using the user ID pass to it from auth change.
     async fetchUser({ commit }, user) {
+      console.log("Auth x2")
+
       if (user) {
         const userProfile = await userCollection.doc(user.uid).get()
-
         if (userProfile.exists) {
           commit("setLoggedInUser", { loggedIn: true, data: user, docData: userProfile.data() });
 
