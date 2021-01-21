@@ -3,8 +3,8 @@
         <v-row max-width="968" width="100%" align="center">
             <v-sheet rounded="lg" max-width="968" width="100%" outlined class="loginSheet">
                 <v-container>
+                    <h1 class="text-center">Login</h1>
                     <v-form @submit.prevent="signIn()" ref="form">
-                        <h1 class="text-center">Login</h1>
                         <v-text-field 
                             v-model="signInForm.email" 
                             label="Email" 

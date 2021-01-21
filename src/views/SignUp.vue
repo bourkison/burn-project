@@ -3,8 +3,8 @@
         <v-row max-width="968" width="100%" align="center">
             <v-sheet rounded="lg" max-width="968" width="100%" outlined class="signUpSheet">
                 <v-container class="innerCont">
+                    <h1 class="text-center">Sign Up</h1>
                     <v-form @submit.prevent="signUp()" ref="form">
-                        <h1 class="text-center">Sign Up</h1>
                         <v-text-field 
                             v-model="signUpForm.email" 
                             label="Email" 
@@ -134,7 +134,7 @@ export default {
             },
             errorMessage: '',
 
-            // Veutify:,
+            // Veutify:
             showPassword: false,
             birthdayMenu: false,
             rules: {

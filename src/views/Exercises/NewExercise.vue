@@ -12,34 +12,45 @@
 -->
 
 <template>
-    <div class="newExercise">
-        <h1>New Exercise</h1>
-        <form @submit.prevent v-if="!isLoading">
-            <label for="exNameInput">Name:</label>
-            <input id="exNameInput" type="text" v-model="exerciseForm.name" required/><br>
+    <v-container>
+    <v-row>
+        <v-col cols="12" sm="2">
+            <v-sheet rounded="lg" min-height="268">
+                <!--  -->
+            </v-sheet>
+        </v-col>
 
-            <label for="exDescriptionInput">Description:</label>
-            <input id="exDescriptionInput" type="text" v-model="exerciseForm.description" required/><br>
+        <v-col cols="12" sm="8">
+            <v-sheet min-height="70vh" rounded="lg">
+                <v-container>
+                    <h1>New Exercise</h1>
+                    <v-form @submit.prevent="createExercise">
+                        <v-text-field
+                            v-model="exerciseForm.name"
+                            label="Name"
+                            :rules=[rules.required]
+                        ></v-text-field>
+                        <MarkdownInput></MarkdownInput>
+                    </v-form>
+                </v-container>
+            </v-sheet>
+        </v-col>
 
-            <label for="exMuscGroupInput">Muscle Groups:</label>
-            <MuscleGroupSelect id="exMuscGroupInput" v-model="exerciseForm.muscleGroups" require/><br>
-
-            <label for="exFileInput">Image or Video:</label>
-            <input id="exFileInput" type="file" accept="image/png,image/jpg,video/mp4" v-bind:file="imageFile" @change="handleFileUpload($event)" />
-
-            <button @click="createExercise">Create</button>
-        </form>
-    </div>
+        <v-col cols="12" sm="2">
+            <v-sheet rounded="lg" min-height="268">
+                <!--  -->
+            </v-sheet>
+        </v-col>
+    </v-row>
+    </v-container>
 </template>
 
 <script>
-import MuscleGroupSelect from '../Utility/MuscleGroupSelect.vue'
+import MarkdownInput from '../Utility/MarkdownInput.vue'
 
 export default {
     name: "NewExercise",
-    components: {
-        MuscleGroupSelect
-    },
+    components: { MarkdownInput },
     data() {
         return {
             isLoading: false,
@@ -51,7 +62,11 @@ export default {
                 videoSrc: ''
             },
             imageFile: '',
-            errorMessage: ''
+            errorMessage: '',
+            // Vuetify:
+            rules: {
+                required: value => !!value || 'Required.',
+            }
         }
     },
 
