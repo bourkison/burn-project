@@ -15,7 +15,6 @@
                             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                             :rules="[rules.required]"
                             :type="showPassword ? 'text' : 'password'"
-                            name="input-10-2"
                             label="Password"
                             class="input-group--focused"
                             @click:append="showPassword = !showPassword"
