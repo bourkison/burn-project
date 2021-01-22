@@ -38,7 +38,6 @@
                     <v-btn icon @click="formatOl"><v-icon>mdi-format-list-numbered</v-icon></v-btn>
                     <v-btn icon @click="formatBold"><v-icon>mdi-format-bold</v-icon></v-btn>
                     <v-btn icon @click="formatItalic"><v-icon>mdi-format-italic</v-icon></v-btn>
-                    <v-btn icon @click="formatUnderline"><v-icon>mdi-format-underline</v-icon></v-btn>
                 </v-container>
             </v-tab-item>
 
@@ -217,11 +216,19 @@ export default {
             this.setSelectionArea(); 
         },
 
-        formatBold: function() {},
+        formatBold: function() {
+            this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "****" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+            this.caretPos += 2;
+            this.$refs.textArea.focus();
+            this.setSelectionArea();
+        },
 
-        formatItalic: function() {},
-
-        formatUnderline: function() {},
+        formatItalic: function() {
+            this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "**" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+            this.caretPos += 1;
+            this.$refs.textArea.focus();
+            this.setSelectionArea();
+        },
 
         // Sets selection to this.caretPos
         // Vue must setTimeout when setting selection range for reasons.
