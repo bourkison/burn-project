@@ -22,7 +22,7 @@
             <v-tab-item :value="'tab-1'">
                 <v-container>
                     <v-textarea 
-                        placeholder="Enter text here. View formatted text on the eye-ball tab. For more information on formatting, press the information tab." 
+                        placeholder="Enter text here. View formatted text on the eyeball tab. For more information on formatting, press the information tab. TIP: New paragraphs require 2 'enters'." 
                         ref="textArea"
                         full-width 
                         auto-grow 
@@ -40,12 +40,21 @@
                     <v-btn icon @click="formatItalic"><v-icon title="Emphasis">mdi-format-italic</v-icon></v-btn>
                     <v-btn icon @click="formatHeading"><v-icon title="Heading">mdi-format-header-1</v-icon></v-btn>
                     <v-btn icon @click="formatSubHeading"><v-icon title="Subheading">mdi-format-header-2</v-icon></v-btn>
+                    <v-btn icon @click="formatImage"><v-icon title="Add Image">mdi-image-outline</v-icon></v-btn>
+                    <v-btn icon @click="formatUrl"><v-icon title="Add URL">mdi-link</v-icon></v-btn>
+
                 </v-container>
             </v-tab-item>
 
             <v-tab-item :value="'tab-2'">
                 <v-container>
                     <v-card class="mdOutput" v-html="compiledMarkdown"></v-card>
+                </v-container>
+            </v-tab-item>
+
+            <v-tab-item :value="'tab-3'">
+                <v-container>
+                    <v-card>For more information on formatting, please see <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">here</a>.</v-card>
                 </v-container>
             </v-tab-item>
         </v-tabs-items>
@@ -282,10 +291,25 @@ export default {
             this.setSelectionArea();
         },
 
+        formatImage: function() {
+            this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "![image_name_here](image_URL_here.jpg)" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+            this.caretPos += 19;
+
+            this.$refs.textArea.focus();
+            this.setSelectionArea(this.caretPos, this.caretPos + 18);
+        },
+
+        formatUrl: function() {
+            this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "[text_to_show_here](url_to_go_to_here)" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+            this.caretPos += 20;
+            this.$refs.textArea.focus();
+            this.setSelectionArea(this.caretPos, this.caretPos + 17);
+        },
+
         // Sets selection to this.caretPos
         // Vue must setTimeout when setting selection range for reasons.
-        setSelectionArea: _.debounce(function() {
-            this.$refs.textArea.$el.querySelector('textarea').setSelectionRange(this.caretPos, this.caretPos);
+        setSelectionArea: _.debounce(function(start = this.caretPos, end = this.caretPos) {
+            this.$refs.textArea.$el.querySelector('textarea').setSelectionRange(start, end);
         }, 2),
     },
 
