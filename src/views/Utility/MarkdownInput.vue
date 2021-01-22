@@ -23,14 +23,18 @@
                 <v-container>
                     <v-textarea 
                         label="Exercise Description" 
+                        ref="textArea"
                         full-width 
                         auto-grow 
-                        @input="update" 
+                        @keyup="handleType"
+                        @mouseup="setCaretPos"
+                        v-model="inputDescription" 
                         counter 
                         no-resize
                         class="inputTextArea"
                         :rules=[rules.required,rules.max]
                     ></v-textarea>
+                    <v-btn icon @click="formatUl"><v-icon>mdi-format-list-bulleted</v-icon></v-btn>
                 </v-container>
             </v-tab-item>
 
@@ -52,6 +56,11 @@ export default {
     data() {
         return {
             inputDescription: '',
+            inputByRow: [],
+            
+            // Markdown Format:
+            caretPos: 0,
+            orderingList: false,
 
             //Vuetify: 
             tab: null,
@@ -69,10 +78,98 @@ export default {
     },
 
     methods: {
-        update: _.debounce(function(e) {
-            this.inputDescription = e;
-        }, 300)
-    }
+        handleType: function(e) {
+            this.setCaretPos(e);
+            if (this.inputDescription.includes("\n")) {
+                this.inputByRow = this.inputDescription.split("\n");
+            } else {
+                this.inputByRow = [this.inputDescription];
+            }
+            let caretRow = this.getCaretRow(this.inputByRow);
+
+
+            // If Enter Press && Previous row starts with "* ""
+            // console.log(this.inputByRow[this.getCaretRow(this.inputByRow) - 1].substring(0, 2));
+            if (caretRow > 0) {
+                console.log(caretRow, e.keyCode, this.inputByRow[caretRow - 1].substring(0, 2));
+                if (e.keyCode === 13 && this.inputByRow[caretRow - 1].substring(0, 2) == "* ") {
+                    this.inputByRow[caretRow] = "* ";
+                    this.caretPos += 2;
+                    this.inputDescription = this.inputByRow.join("\n");
+                    this.setSelectionArea();
+                }
+            }
+
+            console.log(e);
+
+        },
+
+        setCaretPos: function(e) {
+            this.caretPos = e.target.selectionStart;
+        },
+
+        getCaretRow: function(arr) {
+            let count = 0;
+            let i = 0;
+            let rowFound = false;
+
+            arr.forEach(a => {
+                count += a.length;
+
+                if (count >= this.caretPos) {
+                    rowFound = true;
+                    console.log(i);
+                    return i;
+                }
+
+                i++;
+                count++;
+            })
+
+            if (rowFound) { return i } else { console.log("Failure finding row"); return false; }
+        },
+
+        formatUl: _.debounce(function() {
+            this.orderingList = !this.orderingList;
+
+            let caretRow = this.getCaretRow(this.inputByRow);
+
+            if (this.inputByRow[caretRow].substring(0, 2) === "* ") {
+                this.inputByRow[caretRow] = this.inputByRow[caretRow].substring(2);
+                this.caretPos -= 2;
+            } else {
+                this.inputByRow[caretRow] = "* " + this.inputByRow[caretRow];
+                this.caretPos += 2;
+            }
+
+            this.inputDescription = this.inputByRow.join("\n");
+            this.$refs.textArea.focus();
+            this.setSelectionArea();            
+
+        }, 100),
+
+        setSelectionArea: _.debounce(function() {
+            // this.setSelectionRange(this.$refs.textArea, this.caretPos, this.caretPos)   
+            console.log(this.$refs.textArea.$el);
+            this.$refs.textArea.$el.querySelector('textarea').setSelectionRange(this.caretPos, this.caretPos);
+        }, 2),
+
+        // setSelectionRange: function(input, selectionStart, selectionEnd) {
+        //     if (input.setSelectionRange) {
+        //         input.focus();
+        //         input.setSelectionRange(selectionStart, selectionEnd);
+        //     } else if (input.createTextRange) {
+        //         var range = input.createTextRange();
+        //         range.collapse(true);
+        //         range.moveEnd('character', selectionEnd);
+        //         range.moveStart('character', selectionStart);
+        //         range.select();
+        //     }
+        // },
+
+    },
+
+    watch: {}
 }
 </script>
 
