@@ -22,7 +22,7 @@
             <v-tab-item :value="'tab-1'">
                 <v-container>
                     <v-textarea 
-                        label="Exercise Description" 
+                        placeholder="Enter text here. View formatted text on the eye-ball tab. For more information on formatting, press the information tab." 
                         ref="textArea"
                         full-width 
                         auto-grow 
@@ -34,10 +34,12 @@
                         class="inputTextArea"
                         :rules=[rules.required,rules.max]
                     ></v-textarea>
-                    <v-btn icon @click="formatUl"><v-icon>mdi-format-list-bulleted</v-icon></v-btn>
-                    <v-btn icon @click="formatOl"><v-icon>mdi-format-list-numbered</v-icon></v-btn>
-                    <v-btn icon @click="formatBold"><v-icon>mdi-format-bold</v-icon></v-btn>
-                    <v-btn icon @click="formatItalic"><v-icon>mdi-format-italic</v-icon></v-btn>
+                    <v-btn icon @click="formatUl"><v-icon title="Bulleted List">mdi-format-list-bulleted</v-icon></v-btn>
+                    <v-btn icon @click="formatOl"><v-icon title="Numbered List">mdi-format-list-numbered</v-icon></v-btn>
+                    <v-btn icon @click="formatBold"><v-icon title="Bold">mdi-format-bold</v-icon></v-btn>
+                    <v-btn icon @click="formatItalic"><v-icon title="Emphasis">mdi-format-italic</v-icon></v-btn>
+                    <v-btn icon @click="formatHeading"><v-icon title="Heading">mdi-format-header-1</v-icon></v-btn>
+                    <v-btn icon @click="formatSubHeading"><v-icon title="Subheading">mdi-format-header-2</v-icon></v-btn>
                 </v-container>
             </v-tab-item>
 
@@ -59,7 +61,7 @@ export default {
     data() {
         return {
             inputDescription: '',
-            inputByRow: [],
+            inputByRow: [""],
             
             // Markdown Format:
             caretPos: 0,
@@ -72,7 +74,7 @@ export default {
             tab: null,
             rules: {
                 required: value => !!value || 'Required.',
-                max: value => value.length <= 1024 || 'Max 1024 characters.'
+                max: value => value.length <= 5096 || 'Max 5096 characters.'
             }
         }
     },
@@ -216,6 +218,7 @@ export default {
             this.setSelectionArea(); 
         },
 
+        // Bold
         formatBold: function() {
             this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "****" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
             this.caretPos += 2;
@@ -223,9 +226,58 @@ export default {
             this.setSelectionArea();
         },
 
+        // Italics
         formatItalic: function() {
             this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "**" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
             this.caretPos += 1;
+            this.$refs.textArea.focus();
+            this.setSelectionArea();
+        },
+
+        // Header
+        formatHeading: function() {
+            // First check if there are more than 2 hashtags at the start (if so, then don't do anything with this.)
+            if (this.inputByRow[this.caretRow].substring(0, 3) !== "###") {
+                // Check if subheading, if so just knock off 1 character.
+                if (this.inputByRow[this.caretRow].substring(0, 3) === "## ") {
+                    this.inputByRow[this.caretRow] = this.inputByRow[this.caretRow].substring(1, this.inputByRow[this.caretRow].length);
+                    this.caretPos --;
+                }
+                else if (this.inputByRow[this.caretRow].substring(0, 2) === "# ") {
+                    this.inputByRow[this.caretRow] = this.inputByRow[this.caretRow].substring(2, this.inputByRow[this.caretRow].length);
+                    this.caretPos -= 2;
+                } else {
+                    this.inputByRow[this.caretRow] = "# " + this.inputByRow[this.caretRow];
+                    this.caretPos += 2;
+                }  
+
+                this.inputDescription = this.inputByRow.join("\n");
+            }
+            
+            this.$refs.textArea.focus();
+            this.setSelectionArea();
+        },
+
+        // Subheader
+        formatSubHeading: function() {
+            // First check if there are more than 2 hashtags at the start (if so, then don't do anything with this.)
+            if (this.inputByRow[this.caretRow].substring(0, 3) !== "###") {
+                // Check if subheading, if so remove.
+                if (this.inputByRow[this.caretRow].substring(0, 3) === "## ") {
+                    this.inputByRow[this.caretRow] = this.inputByRow[this.caretRow].substring(3, this.inputByRow[this.caretRow].length);
+                    this.caretPos -= 3;
+                }
+                else if (this.inputByRow[this.caretRow].substring(0, 2) === "# ") {
+                    this.inputByRow[this.caretRow] = "#" + this.inputByRow[this.caretRow];
+                    this.caretPos ++;
+                } else {
+                    this.inputByRow[this.caretRow] = "## " + this.inputByRow[this.caretRow];
+                    this.caretPos += 3;
+                }  
+
+                this.inputDescription = this.inputByRow.join("\n");
+            }
+            
             this.$refs.textArea.focus();
             this.setSelectionArea();
         },

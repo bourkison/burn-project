@@ -27,7 +27,7 @@
                     <v-form @submit.prevent="createExercise">
                         <v-text-field
                             v-model="exerciseForm.name"
-                            label="Name"
+                            label="Exercise Name"
                             :rules=[rules.required]
                         ></v-text-field>
                         <MarkdownInput></MarkdownInput>
