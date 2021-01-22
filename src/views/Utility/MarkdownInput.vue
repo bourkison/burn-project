@@ -28,6 +28,7 @@
                         auto-grow 
                         @keyup="handleType"
                         @mouseup="setCaretPos"
+                        @input="emitInput"
                         v-model="inputDescription" 
                         counter 
                         no-resize
@@ -87,7 +88,7 @@ export default {
             }
         }
     },
-
+    
     computed: {
         compiledMarkdown: function() {
             return marked(this.inputDescription);
@@ -291,6 +292,7 @@ export default {
             this.setSelectionArea();
         },
 
+        // Image
         formatImage: function() {
             this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "![image_name_here](image_URL_here.jpg)" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
             this.caretPos += 19;
@@ -299,6 +301,7 @@ export default {
             this.setSelectionArea(this.caretPos, this.caretPos + 18);
         },
 
+        // URL
         formatUrl: function() {
             this.inputDescription = this.inputDescription.substring(0, this.caretPos) + "[text_to_show_here](url_to_go_to_here)" + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
             this.caretPos += 20;
@@ -311,6 +314,10 @@ export default {
         setSelectionArea: _.debounce(function(start = this.caretPos, end = this.caretPos) {
             this.$refs.textArea.$el.querySelector('textarea').setSelectionRange(start, end);
         }, 2),
+
+        emitInput: _.debounce(function() {
+            this.$emit("update-text",this.inputDescription);
+        }, 300)
     },
 
     watch: {}

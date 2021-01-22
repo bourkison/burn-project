@@ -34,13 +34,13 @@ import { auth } from '../firebase';
 export default {
     data() {
         return {
-            isLoading: false,
             signInForm: {
                 email: '',
                 password: ''
             },
             errorMessage: '',
             // Vuetify:
+            isLoading: false,
             showPassword: false,
             rules: {
                 required: value => !!value || 'Required.',

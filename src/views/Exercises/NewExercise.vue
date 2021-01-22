@@ -30,7 +30,9 @@
                             label="Exercise Name"
                             :rules=[rules.required]
                         ></v-text-field>
-                        <MarkdownInput></MarkdownInput>
+                        <MarkdownInput @update-text="updateDescription"></MarkdownInput>
+                        <MuscleGroupSelect></MuscleGroupSelect>
+                        <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
                     </v-form>
                 </v-container>
             </v-sheet>
@@ -47,13 +49,13 @@
 
 <script>
 import MarkdownInput from '../Utility/MarkdownInput.vue'
+import MuscleGroupSelect from '../Utility/MuscleGroupSelect.vue'
 
 export default {
     name: "NewExercise",
-    components: { MarkdownInput },
+    components: { MarkdownInput, MuscleGroupSelect },
     data() {
         return {
-            isLoading: false,
             exerciseForm: {
                 name: '',
                 description: '',
@@ -61,9 +63,11 @@ export default {
                 imgURL: '',
                 videoSrc: ''
             },
+            isLoading: false,
             imageFile: '',
             errorMessage: '',
             // Vuetify:
+
             rules: {
                 required: value => !!value || 'Required.',
             }
@@ -74,6 +78,15 @@ export default {
         handleFileUpload(e) {
             console.log(e);
             console.log(this.imageFile);
+        },
+
+        createExercise() {
+            console.log(this.exerciseForm.description);
+        },
+
+        updateDescription(t) {
+            this.exerciseForm.description = t;
+            console.log(t);
         }
     }
 }
@@ -82,5 +95,9 @@ export default {
 <style scoped>
     input {
         margin-bottom: 10px;
+    }
+
+    button {
+        margin-top: 10px;
     }
 </style>

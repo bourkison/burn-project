@@ -1,16 +1,56 @@
 <template>
-    <select size="1">
-        <option value="chest">Chest</option>
-        <option value="arms">Arms</option>
-        <option value="core">Core</option>
-        <option value="back">Back</option>
-        <option value="legs">Legs</option>
-    </select>
+    <v-card outlined class="muscleGroupsCont">
+        <MuscleGroup v-bind:editable="true" v-bind:selectedGroups="selectedMuscleGroups" @mgClick="muscleGroupClickHandler"></MuscleGroup>
+
+        <v-overflow-btn
+            v-model="selectedMuscleGroups"
+            :items="allMuscleGroups"
+            label="Muscle Groups"
+            multiple
+            outlined
+            auto
+            menu-props="{ top: true, offsetY: true }"
+          ></v-overflow-btn>
+    </v-card>
 </template>
 
 <script>
+import MuscleGroup from './MuscleGroup.vue'
+// import _ from 'lodash'
+
 export default {
     name: "MuscleGroupSelect",
-    components: {}
+    components: { MuscleGroup },
+    data() { 
+        return {
+            selectedMuscleGroups: [],
+            allMuscleGroups: ["Trapezius","Deltoids","Forearms","Lats","Abs","Obliques","Pectorals","Adductors","Calves","Hamstrings","Glutes","Quads","Triceps","Biceps"] 
+        }
+    },
+    methods: {
+        muscleGroupClickHandler: function(id) {
+            if (!this.selectedMuscleGroups.includes(id)) {
+                this.selectedMuscleGroups.push(id);
+            } else {
+                let temp = [];
+                this.selectedMuscleGroups.forEach(mg => {
+                    if (mg != id) {
+                        temp.push(mg);
+                    }
+                })
+
+                this.selectedMuscleGroups = temp;
+            }
+        }
+    },
+
+    watch: {
+    }
 }
 </script>
+
+<style scoped>
+    .muscleGroupsCont {
+        margin-top: 10px;
+    }
+</style>
