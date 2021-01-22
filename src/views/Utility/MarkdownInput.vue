@@ -35,6 +35,10 @@
                         :rules=[rules.required,rules.max]
                     ></v-textarea>
                     <v-btn icon @click="formatUl"><v-icon>mdi-format-list-bulleted</v-icon></v-btn>
+                    <v-btn icon @click="formatOl"><v-icon>mdi-format-list-numbered</v-icon></v-btn>
+                    <v-btn icon @click="formatBold"><v-icon>mdi-format-bold</v-icon></v-btn>
+                    <v-btn icon @click="formatItalic"><v-icon>mdi-format-italic</v-icon></v-btn>
+                    <v-btn icon @click="formatUnderline"><v-icon>mdi-format-underline</v-icon></v-btn>
                 </v-container>
             </v-tab-item>
 
@@ -60,7 +64,10 @@ export default {
             
             // Markdown Format:
             caretPos: 0,
-            orderingList: false,
+            caretRow: 0,
+            olRow: false,
+            ulRow: false,
+
 
             //Vuetify: 
             tab: null,
@@ -79,66 +86,111 @@ export default {
 
     methods: {
         handleType: function(e) {
-            this.setCaretPos(e);
+            // Check amount of lines in input then set up our inputByRow array.
             if (this.inputDescription.includes("\n")) {
                 this.inputByRow = this.inputDescription.split("\n");
             } else {
                 this.inputByRow = [this.inputDescription];
             }
-            let caretRow = this.getCaretRow(this.inputByRow);
 
+            // Get our cursor position.
+            this.setCaretPos(e);
 
-            // If Enter Press && Previous row starts with "* ""
-            // console.log(this.inputByRow[this.getCaretRow(this.inputByRow) - 1].substring(0, 2));
-            if (caretRow > 0) {
-                console.log(caretRow, e.keyCode, this.inputByRow[caretRow - 1].substring(0, 2));
-                if (e.keyCode === 13 && this.inputByRow[caretRow - 1].substring(0, 2) == "* ") {
-                    this.inputByRow[caretRow] = "* ";
+            // See if we are in a row with any lists.
+            if (this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "* " || this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "- " || this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "+ ") {
+                this.ulRow = true;
+                this.olRow = false;
+            } else if (this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "* " || this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "- " || this.inputByRow[this.caretRow].trimStart().substring(0, 2) == "+ ") {
+                this.olRow = true;
+                this.ulRow = false;
+            }
+
+            // Also see if above row is any lists (for if we have just released enter button)
+            let aboveUlRow = false;
+            let aboveOlRow = false;
+            if (this.caretRow > 0) {
+                if (this.inputByRow[this.caretRow - 1].trimStart().substring(0, 2) == "* " || this.inputByRow[this.caretRow - 1].trimStart().substring(0, 2) == "- " || this.inputByRow[this.caretRow - 1].trimStart().substring(0, 2) == "+ ") {
+                    aboveUlRow = true;
+                } else if (this.inputByRow[this.caretRow - 1].trimStart().substring(0, 3) == "1. ") {
+                    aboveOlRow = true;
+                }
+            }
+
+            // Checks with lists and enter.
+            if (this.caretRow > 0) {
+                console.log(e.keycode, aboveOlRow);
+                // If Enter, Above list (as we've just pressed enter) and Above row length is 2, then above ul was empty, so ditch it.
+                // Also check for if the new row has content, as if the user has pressed enter there they probably are intending for * to stay.
+                if (e.keyCode === 13 && aboveUlRow && this.inputByRow[this.caretRow - 1].length === 2 && this.inputByRow[this.caretRow].length === 0) {
+                    console.log("End ul list.")
+                    this.inputDescription = this.inputDescription.substring(0, this.caretPos - 3) + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+                    this.caretPos -= 3;
+                    this.ulRow = false;
+                    this.setSelectionArea();
+                }
+                // If Enter, and Ulrow, place another ul tag.
+                else if (e.keyCode === 13 && aboveUlRow) {
+                    console.log("New ul list tag.")
+                    this.inputByRow[this.caretRow] = "* " + this.inputByRow[this.caretRow];
                     this.caretPos += 2;
+                    this.ulRow = true;
+                    this.inputDescription = this.inputByRow.join("\n");
+                    this.setSelectionArea();
+                }
+                // Same as 2 above but for ol.
+                else if (e.keyCode === 13 && aboveOlRow && this.inputByRow[this.caretRow - 1].length == 3 && this.inputByRow[this.caretRow].length === 0) {
+                    console.log("End ol list");
+                    this.inputDescription = this.inputDescription.substring(0, this.caretPos - 4) + this.inputDescription.substring(this.caretPos, this.inputDescription.length);
+                    this.caretPos -= 4;
+                    this.olRow = false;
+                    this.setSelectionArea();
+                }
+                // " "
+                else if (e.keyCode === 13 && aboveOlRow) {
+                    console.log("New ol list tag.")
+                    this.inputByRow[this.caretRow] = "1. " + this.inputByRow[this.caretRow];
+                    this.caretPos += 3;
+                    this.olRow = true;
                     this.inputDescription = this.inputByRow.join("\n");
                     this.setSelectionArea();
                 }
             }
-
-            console.log(e);
-
         },
 
         setCaretPos: function(e) {
             this.caretPos = e.target.selectionStart;
+            if (this.inputByRow.length > 1) {
+                this.caretRow = this.getCaretRow(this.inputByRow);
+            } else {
+                this.caretRow = 0;
+            }            
         },
 
         getCaretRow: function(arr) {
             let count = 0;
             let i = 0;
-            let rowFound = false;
+            let rowFound = null;
 
             arr.forEach(a => {
                 count += a.length;
-
-                if (count >= this.caretPos) {
-                    rowFound = true;
-                    console.log(i);
-                    return i;
+                if (count >= this.caretPos && rowFound == null) {
+                    rowFound = i;
                 }
-
                 i++;
                 count++;
             })
-
-            if (rowFound) { return i } else { console.log("Failure finding row"); return false; }
+            if (rowFound != null) { return rowFound } else { console.log("Failure finding row"); return false; }
         },
 
-        formatUl: _.debounce(function() {
-            this.orderingList = !this.orderingList;
-
-            let caretRow = this.getCaretRow(this.inputByRow);
-
-            if (this.inputByRow[caretRow].substring(0, 2) === "* ") {
-                this.inputByRow[caretRow] = this.inputByRow[caretRow].substring(2);
+        // Unordered list button click.
+        formatUl: function() {
+            if (this.ulRow) {
+                this.inputByRow[this.caretRow] = this.inputByRow[this.caretRow].substring(2);
+                this.ulRow = false;
                 this.caretPos -= 2;
             } else {
-                this.inputByRow[caretRow] = "* " + this.inputByRow[caretRow];
+                this.inputByRow[this.caretRow] = "* " + this.inputByRow[this.caretRow];
+                this.ulRow = true;
                 this.caretPos += 2;
             }
 
@@ -146,27 +198,36 @@ export default {
             this.$refs.textArea.focus();
             this.setSelectionArea();            
 
-        }, 100),
+        },
 
+        // Ordered list button click.
+        formatOl: function() {
+            if (this.olRow) {
+                this.inputByRow[this.caretRow] = this.inputByRow[this.caretRow].substring(3);
+                this.olRow = false;
+                this.caretPos -= 3;
+            } else {
+                this.inputByRow[this.caretRow] = "1. " + this.inputByRow[this.caretRow];
+                this.olRow = true;
+                this.caretPos += 3;
+            }
+
+            this.inputDescription = this.inputByRow.join("\n");
+            this.$refs.textArea.focus();
+            this.setSelectionArea(); 
+        },
+
+        formatBold: function() {},
+
+        formatItalic: function() {},
+
+        formatUnderline: function() {},
+
+        // Sets selection to this.caretPos
+        // Vue must setTimeout when setting selection range for reasons.
         setSelectionArea: _.debounce(function() {
-            // this.setSelectionRange(this.$refs.textArea, this.caretPos, this.caretPos)   
-            console.log(this.$refs.textArea.$el);
             this.$refs.textArea.$el.querySelector('textarea').setSelectionRange(this.caretPos, this.caretPos);
         }, 2),
-
-        // setSelectionRange: function(input, selectionStart, selectionEnd) {
-        //     if (input.setSelectionRange) {
-        //         input.focus();
-        //         input.setSelectionRange(selectionStart, selectionEnd);
-        //     } else if (input.createTextRange) {
-        //         var range = input.createTextRange();
-        //         range.collapse(true);
-        //         range.moveEnd('character', selectionEnd);
-        //         range.moveStart('character', selectionStart);
-        //         range.select();
-        //     }
-        // },
-
     },
 
     watch: {}
