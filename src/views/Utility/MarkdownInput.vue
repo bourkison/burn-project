@@ -1,5 +1,5 @@
 <template>
-    <v-card outlined>
+    <v-card class="markdownInput" outlined>
             <v-tabs
                 v-model="tab"
                 icons-and-text
@@ -30,6 +30,7 @@
                         @mouseup="setCaretPos"
                         @input="emitInput"
                         v-model="inputDescription" 
+                        height="386"
                         counter 
                         no-resize
                         class="inputTextArea"
@@ -88,7 +89,7 @@ export default {
             }
         }
     },
-    
+
     computed: {
         compiledMarkdown: function() {
             return marked(this.inputDescription);
@@ -325,6 +326,10 @@ export default {
 </script>
 
 <style scoped>
+    .markdownInput {
+        margin-top: 10px;
+    }
+
     .descText {
         padding: 10px;
     }

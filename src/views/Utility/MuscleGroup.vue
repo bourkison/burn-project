@@ -1,4 +1,5 @@
 <template>
+    <!-- MUSCLE GROUP TEMPLATE FOUND AT https://codepen.io/baublet/pen/PzjmpL -->
     <div class="muscle-groups" align="center">
             <h2 align="center">Select Muscle Group</h2>                
             <svg width="100%" height="100%" viewBox="0 0 176 207" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
@@ -95,7 +96,7 @@ export default {
         selectedGroups: function(newVal, oldVal) {
             console.log("n", newVal, "o", oldVal);
             // Not sure what's happening here. Watcher appears to be broken when clicking on SVG.
-            // Do this check to workaround. As only happens when pushing to array.
+            // Do this check to workaround as only happens when pushing to array.
             if (newVal.length == oldVal.length) {
                 document.getElementById(newVal[newVal.length - 1]).children.forEach(child => {
                     child.style.fill = "red";

@@ -30,8 +30,10 @@
                             label="Exercise Name"
                             :rules=[rules.required]
                         ></v-text-field>
-                        <MarkdownInput @update-text="updateDescription"></MarkdownInput>
-                        <MuscleGroupSelect></MuscleGroupSelect>
+                        <v-row>
+                            <v-col cols="12" md="8"><MarkdownInput @update-text="updateDescription"></MarkdownInput></v-col>
+                            <v-col cols="12" md="4"><MuscleGroupSelect></MuscleGroupSelect></v-col>
+                        </v-row>
                         <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
                     </v-form>
                 </v-container>
