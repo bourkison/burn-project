@@ -10,7 +10,10 @@
         imgUrl: array of URL strings,
         videoSrc: video src string,
         createdBy: userId,
-        createdAt: Timestamp
+        createdAt: Timestamp,
+
+        likes: [], // Array of user IDs
+
     }
 -->
 
@@ -46,7 +49,7 @@
                             <v-col cols="12" md="6">
                                 <v-card align="center" outlined>
                                     <v-container class="setsAdder">
-                                        <h2>Suggested Format</h2>
+                                        <h2>Suggested Sets</h2>
                                         <v-row v-for="set in exerciseForm.suggestedSets" :key="set.id" align="center" justify="center">
                                             <v-col cols="12" md="6">
                                                 <v-select :items="measureByOptions" v-model="set.measureBy"></v-select>
@@ -140,14 +143,14 @@ export default {
 
     methods: {
         createExercise() {
-            console.log(this.exerciseForm);
+            this.isLoading = true;
             this.exerciseForm.createdBy = this.$store.state.userProfile.data.uid;
             this.exerciseForm.createdAt = new Date();
             
             this.exerciseForm.suggestedSets.forEach (s => {
                 delete s.id;
             })
-            
+
             // Setting this to 1 will call our watcher, which will begin the upload process.
             this.idAttempts = 1
 
@@ -292,6 +295,9 @@ export default {
                     imageRef.put(img.file).then(() => {
                         this.exerciseForm.imgPaths.push(imageRef.fullPath);
                         this.imagesUploaded ++;
+                    }).catch(e => {
+                        this.errorMessage = "Error uploading images: " + e;
+                        console.log(this.errorMessage);
                     })
                 })
             }
@@ -307,7 +313,13 @@ export default {
                         exercises: firebase.firestore.FieldValue.arrayUnion(this.exerciseForm.id)
                     }).then(() => {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
+                    }).catch(e => {
+                        this.errorMessage = "Error updating user: " + e;
+                        console.log(e);
                     })
+                }).catch(e => {
+                    this.errorMessage = "Error uploading exercise: " + e;
+                    console.log(e);
                 })
             }
         }

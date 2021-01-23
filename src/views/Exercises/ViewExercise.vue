@@ -9,7 +9,7 @@
             </v-col>
 
             <v-col cols="12" sm="6">
-                <v-sheet min-height="70vh" rounded="lg">
+                <v-sheet class="mainSheet" min-height="70vh" rounded="lg">
                     <v-container v-if="exerciseData.imgPaths">
                         <v-card>
                         <v-row class="headerRow" align="center" justify="center">
@@ -17,7 +17,19 @@
                                 <h1 align="left">{{ exerciseData.name }}</h1>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <div align="right"><v-icon v-for="star in exerciseData.difficulty" color="yellow darken-2" :key="star">mdi-star</v-icon></div>
+                                <div align="right">
+                                    <v-icon v-for="star in exerciseData.difficulty" color="yellow darken-2" :key="star">mdi-star</v-icon>    
+                                    <v-menu :offset-y="true">
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
+                                        </template>
+                                        <v-list>
+                                            <v-list-item @click="editExercise" selectable>Edit</v-list-item>
+                                            <v-list-item @click="deleteExercise" color="error" selectable>Delete</v-list-item>
+                                            <v-list-item @click="reportExercise" color="error" selectable>Report</v-list-item>
+                                        </v-list>
+                                    </v-menu>
+                                </div>
                             </v-col>
                         </v-row>
                         </v-card>
@@ -28,16 +40,19 @@
                             <v-container>
                                     <v-sheet align="center">
                                         <v-container class="mdOutput" v-html="compiledMarkdown"></v-container>
-                                        <v-card align="center" max-width="33%">
+                                        <v-card align="center" max-width="33%" class="muscleGroupCont">
                                             <MuscleGroup :editable="false" :selectedGroups="exerciseData.muscleGroups"></MuscleGroup>
                                         </v-card>
                                     </v-sheet>
                             </v-container>
                         </v-card>
+
+                        <v-card outlined>
+                            <CommentSection :exercise-id="this.$route.params.exerciseid"></CommentSection>
+                        </v-card>
                     </v-container>
 
                     <v-container v-else>
-                        Hello hello
                         <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
                     </v-container>
                 </v-sheet>
@@ -56,11 +71,13 @@
 <script>
 import { db, storage } from '../../firebase'
 import * as marked from 'marked'
+
 import MuscleGroup from '../Utility/MuscleGroup.vue'
+import CommentSection from '../Comments/CommentSection.vue'
 
 export default {
     name: 'ViewExercise',
-    components: { MuscleGroup },
+    components: { MuscleGroup, CommentSection },
     data() {
         return {
             exerciseExists: false,
@@ -106,6 +123,18 @@ export default {
                 }
                 this.isLoading = false;
             })
+        },
+
+        editExercise: function() {
+            console.log("edit");
+        },
+
+        deleteExercise: function() {
+            console.log("delete");
+        },
+
+        reportExercise: function() {
+            console.log("report");
         }
     },
 
@@ -123,6 +152,14 @@ export default {
 
 <style scoped>
     .headerRow {
-        padding: 10px 20px;
+        padding: 10px 10px 10px 20px;
+    }
+
+    .mainSheet {
+        color: var(--v-primary-base);
+    }
+
+    .muscleGroupCont {
+        box-shadow: none;
     }
 </style>

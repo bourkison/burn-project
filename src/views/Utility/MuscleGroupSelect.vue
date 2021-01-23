@@ -24,7 +24,7 @@
                 (+{{ selectedMuscleGroups.length - 3 }} others)
                 </span>
             </template>
-          </v-overflow-btn>
+        </v-overflow-btn>
     </v-card>
 </template>
 

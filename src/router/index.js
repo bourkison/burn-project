@@ -5,6 +5,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import NewExercise from '../views/Exercises/NewExercise.vue'
 import ViewExercise from '../views/Exercises/ViewExercise.vue'
+import UserProfile from '../views/Users/UserProfile.vue'
+import Profile from '../views/Users/Profile.vue'
 
 
 Vue.use(VueRouter)
@@ -35,6 +37,16 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import(/*webpackChunkName: "signup" */ '../views/Login.vue')
+  },
+  {
+    path: '/profile',
+    name: 'User Profile',
+    component: UserProfile
+  },
+  {
+    path: '/profile/:id',
+    name: 'Profile',
+    component: Profile
   },
   {
     path: '/exercises/new',
