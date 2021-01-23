@@ -5,6 +5,8 @@
         description: string,
         muscleGroups: array of strings, // Lists all muscle groups he exercise targets.
         suggestedMeasure: string, // Suggested way to calculate exercise (i.e. reps, reps and weight, time, etc)
+        suggestedSets: object, // Suggested reps/sets.
+        difficulty: integer,
         imgUrl: array of URL strings,
         videoSrc: video src string,
         createdBy: userId
@@ -14,13 +16,14 @@
 <template>
     <v-container>
     <v-row>
+        <v-spacer></v-spacer>
         <v-col cols="12" sm="2">
             <v-sheet rounded="lg" min-height="268">
                 <!--  -->
             </v-sheet>
         </v-col>
 
-        <v-col cols="12" sm="8">
+        <v-col cols="12" sm="6">
             <v-sheet min-height="70vh" rounded="lg">
                 <v-container>
                     <h1 align="center">{{ this.exerciseForm.name ? this.exerciseForm.name : 'New Exercise' }}</h1>
@@ -30,9 +33,15 @@
                             label="Exercise Name"
                             :rules=[rules.required]
                         ></v-text-field>
-                        <v-row>
+                        <v-card outlined class="imageUpload">
+                            <v-carousel v-if="imageObjs.length > 0" v-model="model">
+                                <v-carousel-item v-for="img in imageObjs" :key="img.id" :src="img.tempUrl"></v-carousel-item>
+                            </v-carousel>
+                            <v-file-input chips multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" @change="handleFileUpload"></v-file-input> 
+                        </v-card>
+                        <v-row align="center" justify="center">
                             <v-col cols="12" md="8"><MarkdownInput @update-text="updateDescription"></MarkdownInput></v-col>
-                            <v-col cols="12" md="4"><MuscleGroupSelect></MuscleGroupSelect></v-col>
+                            <v-col cols="12" md="4"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
                         </v-row>
                         <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
                     </v-form>
@@ -45,6 +54,7 @@
                 <!--  -->
             </v-sheet>
         </v-col>
+        <v-spacer></v-spacer>
     </v-row>
     </v-container>
 </template>
@@ -66,10 +76,12 @@ export default {
                 videoSrc: ''
             },
             isLoading: false,
-            imageFile: '',
+            imageFiles: [],
+            imageObjs: [],
             errorMessage: '',
-            // Vuetify:
 
+            // Vuetify:
+            model: 0,
             rules: {
                 required: value => !!value || 'Required.',
             }
@@ -78,8 +90,13 @@ export default {
 
     methods: {
         handleFileUpload(e) {
-            console.log(e);
-            console.log(this.imageFile);
+            let i = 0;
+            e.forEach(file => {
+                this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) })
+                i++;
+            })
+            console.log(this.imageFiles);
+            console.log(this.imageObjs);
         },
 
         createExercise() {
@@ -89,7 +106,23 @@ export default {
         updateDescription(t) {
             this.exerciseForm.description = t;
             console.log(t);
+        },
+
+        updateMgs (mg) {
+            this.muscleGroups = mg;
+            console.log("New Exercise:", this.muscleGroups);
         }
+    },
+
+    watch: {
+        imageFiles: function(n, o) {
+            if (n.length === 0) {
+                this.imageObjs = [];
+            } else if (n.length < o.length) {
+                console.log(n, o);
+            }
+        }
+
     }
 }
 </script>
@@ -99,7 +132,14 @@ export default {
         margin-bottom: 10px;
     }
 
-    button {
+    button,
+    .imageUpload {
+        margin-top: 10px;
+    }
+
+    .imageUpload .v-input {
+        padding-left: 10px;
+        padding-right: 10px;
         margin-top: 10px;
     }
 </style>

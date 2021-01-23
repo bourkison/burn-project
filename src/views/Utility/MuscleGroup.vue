@@ -1,15 +1,13 @@
 <template>
     <!-- MUSCLE GROUP TEMPLATE FOUND AT https://codepen.io/baublet/pen/PzjmpL -->
     <div class="muscle-groups" align="center">
-            <h2 align="center">Select Muscle Group</h2>                
+            <h2 align="center">Select Muscle Group(s)</h2>                
             <svg width="100%" height="100%" viewBox="0 0 176 207" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
                 <rect id="Artboard1" x="0" y="0" width="175.551" height="206.785" style="fill:none;"/>
                 <g id="Back-Muscles">
                     <g>
                         <g id="Trapezius">
-                            <g>
                             <path @click="bodyPartClickHandler" d="M129.543,76.453c0.075,0.385 0.737,-2.948 1.567,-2.58c0.829,0.369 1.852,2.584 1.842,2.488c-0.26,-2.728 2.184,-6.972 3.963,-9.859c1.932,-3.136 2.94,-3.318 4.238,-7.371c0.517,-1.615 0,-12.163 2.211,-16.033c2.212,-3.869 3.778,-3.473 5.437,-4.422c0.362,-0.207 -13.577,-1.309 -14.779,-10.719c-0.198,-1.556 -0.211,-2.973 0.036,-4.392c0.247,-1.42 -7.247,-1.995 -7.647,-0.092c-0.612,2.906 4.562,11.205 -13.084,13.913c-1.239,0.19 3.655,2.08 6.357,6.173c0.659,0.998 0.647,3.367 2.672,16.678c0.453,2.976 6.322,11.786 7.187,16.216Z" style="fill:#262626;"/>
-                            </g>
                         </g>
                         <g id="Lats">
                             <path @click="bodyPartClickHandler" d="M134.34,75.599c0,0 5.048,5.158 5.597,8.231c0.549,3.073 0.557,8.648 3.183,8.231c0.035,-0.005 -0.895,-2.038 0.325,-4.136c4.193,-7.206 4.394,-15.619 4.394,-15.619l1.427,-13.718c0,0 -3.915,1.393 -7.024,-0.659c-0.623,-0.411 -0.256,4.772 -3.251,7.473c-1.226,1.105 -5.858,7.124 -4.651,10.197Z" style="fill:#404040;"/>
@@ -106,16 +104,12 @@ export default {
                 document.getElementById(difference[0]).children.forEach(child => {
                     child.style.fill = "red"
                 })
-                console.log(document.getElementById(difference[0]))
             } else {
                 let difference = oldVal.filter(x => !newVal.includes(x));
                 document.getElementById(difference[0]).children.forEach(child => {
                     child.style.fill = "rgb(64,64,64)";
                 })
             }
-
-            console.log(this.$vuetify.theme );
-
         }
     }
 }

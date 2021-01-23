@@ -7,10 +7,23 @@
             :items="allMuscleGroups"
             label="Muscle Groups"
             multiple
+            clear-icon
             outlined
             auto
             menu-props="{ top: true, offsetY: true }"
-          ></v-overflow-btn>
+          >
+            <template v-slot:selection="{ item, index }">
+                <v-chip v-if="index === 0">
+                    <span>{{ item }}</span>
+                </v-chip>
+                <span
+                v-if="index === 1"
+                class="grey--text caption"
+                >
+                (+{{ selectedMuscleGroups.length - 1 }} others)
+                </span>
+            </template>
+          </v-overflow-btn>
     </v-card>
 </template>
 
@@ -31,6 +44,7 @@ export default {
         muscleGroupClickHandler: function(id) {
             if (!this.selectedMuscleGroups.includes(id)) {
                 this.selectedMuscleGroups.push(id);
+                this.$emit("mgCH", this.selectedMuscleGroups);
             } else {
                 let temp = [];
                 this.selectedMuscleGroups.forEach(mg => {
@@ -40,11 +54,9 @@ export default {
                 })
 
                 this.selectedMuscleGroups = temp;
+                this.$emit("mgCH", this.selectedMuscleGroups);
             }
         }
-    },
-
-    watch: {
     }
 }
 </script>
@@ -52,5 +64,6 @@ export default {
 <style scoped>
     .muscleGroupsCont {
         margin-top: 10px;
+        padding-top:10px
     }
 </style>

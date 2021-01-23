@@ -30,7 +30,7 @@
                         @mouseup="setCaretPos"
                         @input="emitInput"
                         v-model="inputDescription" 
-                        height="386"
+                        height="396"
                         counter 
                         no-resize
                         class="inputTextArea"
