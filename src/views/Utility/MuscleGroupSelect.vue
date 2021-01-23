@@ -54,8 +54,9 @@ export default {
                 })
 
                 this.selectedMuscleGroups = temp;
-                this.$emit("mgCH", this.selectedMuscleGroups);
             }
+
+            this.$emit("mgCH", this.selectedMuscleGroups);
         }
     }
 }
