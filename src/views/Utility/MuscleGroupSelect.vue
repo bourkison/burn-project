@@ -13,14 +13,14 @@
             menu-props="{ top: true, offsetY: true }"
           >
             <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0">
+                <v-chip v-if="index < 3">
                     <span>{{ item }}</span>
                 </v-chip>
                 <span
-                v-if="index === 1"
+                v-if="index === 3"
                 class="grey--text caption"
                 >
-                (+{{ selectedMuscleGroups.length - 1 }} others)
+                (+{{ selectedMuscleGroups.length - 3 }} others)
                 </span>
             </template>
           </v-overflow-btn>

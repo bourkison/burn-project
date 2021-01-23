@@ -39,9 +39,19 @@
                             </v-carousel>
                             <v-file-input chips multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" @change="handleFileUpload"></v-file-input> 
                         </v-card>
+                        <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                         <v-row align="center" justify="center">
-                            <v-col cols="12" md="8"><MarkdownInput @update-text="updateDescription"></MarkdownInput></v-col>
-                            <v-col cols="12" md="4"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
+                            <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
+                            <v-col cols="12" md="6">
+                                <v-card align="center" outlined>
+                                    <h2>Difficulty</h2>
+                                    <v-icon :color="stars[0].color" @click="starClick(0)" @mouseover="starHover(true, 0)" @mouseleave="starHover(false, 0)" x-large>{{ stars[0].icon }}</v-icon>
+                                    <v-icon :color="stars[1].color" @click="starClick(1)" @mouseover="starHover(true, 1)" @mouseleave="starHover(false, 1)" x-large>{{ stars[1].icon }}</v-icon>
+                                    <v-icon :color="stars[2].color" @click="starClick(2)" @mouseover="starHover(true, 2)" @mouseleave="starHover(false, 2)" x-large>{{ stars[2].icon }}</v-icon>
+                                    <v-icon :color="stars[3].color" @click="starClick(3)" @mouseover="starHover(true, 3)" @mouseleave="starHover(false, 3)" x-large>{{ stars[3].icon }}</v-icon>
+                                    <v-icon :color="stars[4].color" @click="starClick(4)" @mouseover="starHover(true, 4)" @mouseleave="starHover(false, 4)" x-large>{{ stars[4].icon }}</v-icon>
+                                </v-card>
+                            </v-col>
                         </v-row>
                         <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
                     </v-form>
@@ -72,6 +82,7 @@ export default {
                 name: '',
                 description: '',
                 muscleGroups: [],
+                difficulty: 1,
                 imgURL: '',
                 videoSrc: ''
             },
@@ -83,6 +94,13 @@ export default {
 
             // Vuetify:
             model: 0,
+            stars: [
+                {color: "yellow darken-2", icon: "mdi-star", hover: false, clicked: true},
+                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
+                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
+                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
+                {color: "", icon: "mdi-star-outline", hover: false, clicked: false}
+            ],
             rules: {
                 required: value => !!value || 'Required.',
             }
@@ -140,6 +158,37 @@ export default {
 
         updateMgs (mg) {
             this.muscleGroups = mg;
+        },
+
+        starHover (hover, star) {
+            if (hover) {
+                for (let i = 0; i <= star; i++) {
+                    this.stars[i].icon = "mdi-star";
+                }
+            } else {
+                for (let i = 0; i <= star; i ++) {
+                    if (!this.stars[i].clicked) {
+                        this.stars[i].icon = "mdi-star-outline";
+                    }
+                }
+            }
+        },
+
+        starClick (star) {
+            for (let i = 0; i <= star; i++) {
+                this.stars[i].icon = "mdi-star";
+                this.stars[i].color = "yellow darken-2"
+                this.stars[i].clicked = true;
+            }
+
+            for (let i = star + 1; i < 5; i ++) {
+                this.stars[i].icon = "mdi-star-outline";
+                this.stars[i].color = "";
+                this.stars[i].clicked = false;
+            }
+
+            this.exerciseForm.difficulty = star + 1;
+            document.activeElement.blur();
         }
     },
 
