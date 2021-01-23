@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 
 import Home from '../views/Home.vue'
 import NewExercise from '../views/Exercises/NewExercise.vue'
+import ViewExercise from '../views/Exercises/ViewExercise.vue'
 
 
 Vue.use(VueRouter)
@@ -39,6 +40,11 @@ const routes = [
     path: '/exercises/new',
     name: 'New Exercise',
     component: NewExercise
+  },
+  {
+    path: '/exercises/:exerciseid',
+    name: 'View Exercise',
+    component: ViewExercise
   }
 ]
 

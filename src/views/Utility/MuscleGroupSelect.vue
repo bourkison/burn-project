@@ -1,5 +1,6 @@
 <template>
     <v-card outlined class="muscleGroupsCont">
+        <h2 align="center">Select Muscle Group(s)</h2>                
         <MuscleGroup v-bind:editable="true" v-bind:selectedGroups="selectedMuscleGroups" @mgClick="muscleGroupClickHandler"></MuscleGroup>
 
         <v-overflow-btn

@@ -1,7 +1,4 @@
 import firebase from 'firebase'
-import '@firebase/storage';
-
-// import {Storage} from '@google-cloud/storage'
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
