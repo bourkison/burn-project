@@ -144,6 +144,10 @@ export default {
             this.exerciseForm.createdBy = this.$store.state.userProfile.data.uid;
             this.exerciseForm.createdAt = new Date();
             
+            this.exerciseForm.suggestedSets.forEach (s => {
+                delete s.id;
+            })
+            
             // Setting this to 1 will call our watcher, which will begin the upload process.
             this.idAttempts = 1
 
