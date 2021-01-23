@@ -1,3 +1,14 @@
+<!--
+    comment:
+    {
+        content: string,
+        createdBy: object, // { id: userid, username: username }
+        createdAt: Timestamp,
+
+        likes: array of user IDs,
+    }
+-->
+
 <template>
     <v-container class="commentSection">
         <div class="lcsCont">
@@ -8,7 +19,9 @@
         <div v-if="viewComments">
             <v-card v-if="comments.length == 0"><em>No comments have been added. Add the first one?</em></v-card>
             <Comment v-for="comment in comments" :comment="comment" :key="comment.id"></Comment>
-            <NewComment v-if="commentsAllowed" :coll-path="collectionPath" :coll-id="docId" @newCommentAdded="additionalComment" ></NewComment>
+            <v-form style="padding:10px" @submit.prevent="addComment">
+                <v-text-field v-model="newComment.content" label="New Comment" append-icon="mdi-send" @click:append="addComment"></v-text-field>
+            </v-form>
         </div>
     </v-container>
 </template>
@@ -16,12 +29,11 @@
 <script>
 import firebase from 'firebase'
 import { db } from '../../firebase'
-import NewComment from './NewComment.vue'
 import Comment from './Comment.vue'
 
 export default {
     name: 'CommentSection',
-    components: { NewComment, Comment },
+    components: { Comment },
     props: {
         exerciseId: {
             type: String,
@@ -37,6 +49,7 @@ export default {
             isLoading: true,
             collectionPath: null,
             comments: [],
+            newComment: {},
             commentsAllowed: true,
             docId: null,
             pageType: '',
@@ -77,10 +90,6 @@ export default {
     },
 
     methods: {
-        additionalComment: function(comment) {
-            this.comments.push(comment);
-        },
-
         toggleComment: function() {
             this.viewComments = !this.viewComments;
             document.activeElement.blur();
@@ -140,6 +149,28 @@ export default {
             }
 
             document.activeElement.blur();
+        },
+
+        addComment: function() {
+            this.newComment.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username }
+            this.newComment.createdAt = new Date();
+
+            // First add comment to the relevant collection.
+            this.collectionPath.doc(this.docId).collection("comments").add(this.newComment).then(commentRef => {
+                console.log(commentRef.id);
+                // Now add comment to the user.
+                let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
+                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
+                    this.comments.push(this.newComment);
+                    this.newComment = {};
+                }).catch(e => {
+                    this.errorMessage = "Error adding comment to user: " + e;
+                    console.log(this.errorMessage);
+                })
+            }).catch(e => {
+                this.errorMessage = "Error adding comment to comments: " + e;
+                console.log(this.errorMessage);
+            })
         }
     },
 
