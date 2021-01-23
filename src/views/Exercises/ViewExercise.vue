@@ -48,7 +48,7 @@
                         </v-card>
 
                         <v-card outlined>
-                            <CommentSection :exercise-id="this.$route.params.exerciseid"></CommentSection>
+                            <CommentSection :exercise-id="this.$route.params.exerciseid" :is-liked="isLiked" @likeToggle="likeToggle"></CommentSection>
                         </v-card>
                     </v-container>
 
@@ -84,6 +84,7 @@ export default {
             isLoading: true,
             exerciseData: {},
             imgUrls: [],
+            isLiked: false,
 
             // Firebase:
             downloadedImageCounter: 0,
@@ -135,6 +136,10 @@ export default {
 
         reportExercise: function() {
             console.log("report");
+        },
+
+        likeToggle: function() {
+            this.isLiked = !this.isLiked;
         }
     },
 
@@ -144,6 +149,9 @@ export default {
                 this.isLoading = true;
                 this.exerciseExists = true;
                 this.starsAmount = this.exerciseData.difficulty;
+                if (this.exerciseData.likes) {
+                    this.isLiked = this.exerciseData.likes.includes(this.$store.state.userProfile.data.uid);
+                }
             }
         }
     }
