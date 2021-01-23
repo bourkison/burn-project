@@ -9,7 +9,8 @@
         difficulty: integer,
         imgUrl: array of URL strings,
         videoSrc: video src string,
-        createdBy: userId
+        createdBy: userId,
+        createdAt: Timestamp
     }
 -->
 
@@ -37,7 +38,7 @@
                             <v-carousel v-if="imageObjs.length > 0" v-model="model">
                                 <v-carousel-item v-for="img in imageObjs" :key="img.id" :src="img.tempUrl"></v-carousel-item>
                             </v-carousel>
-                            <v-file-input chips multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" @change="handleFileUpload"></v-file-input> 
+                            <v-file-input prepend-icon="mdi-camera" chips multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" @change="handleFileUpload"></v-file-input> 
                         </v-card>
                         <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                         <v-row align="center" justify="center">
@@ -90,6 +91,8 @@
 </template>
 
 <script>
+import firebase from 'firebase'
+import { db, storage } from '../../firebase'
 import MarkdownInput from '../Utility/MarkdownInput.vue'
 import MuscleGroupSelect from '../Utility/MuscleGroupSelect.vue'
 
@@ -114,6 +117,10 @@ export default {
             setIterator: 0,
             errorMessage: '',
 
+            // Firebase:
+            idAttempts: 0,
+            idUnique: false,
+            imagesUploaded: 0,
             // Vuetify:
             model: 0,
             stars: [
@@ -132,6 +139,28 @@ export default {
     },
 
     methods: {
+        createExercise() {
+            console.log(this.exerciseForm);
+            this.exerciseForm.createdBy = this.$store.state.userProfile.data.uid;
+            this.exerciseForm.createdAt = new Date();
+            
+            // Setting this to 1 will call our watcher, which will begin the upload process.
+            this.idAttempts = 1
+
+            // let imageRef = storage.child("exercises/" + this.$store.state.userProfile.data.uid + "")            
+        },
+
+        generateId() {
+            let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            // First 8 letters of the name, trimmed and lowercase
+            let id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-";
+            // 7 random characters
+            for (let i = 0; i < 7; i++) {
+                id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return id;
+        },
+
         handleFileUpload(e) {
             // Check that there has been a change in this input.
             let change = false;
@@ -170,10 +199,6 @@ export default {
             })
             console.log(this.imageFiles);
             console.log(this.imageObjs);
-        },
-
-        createExercise() {
-            console.log(this.exerciseForm);
         },
 
         updateDescription(t) {
@@ -218,15 +243,15 @@ export default {
         addSet () {
             this.setIterator ++;
             const i = this.setIterator;
-            this.exerciseForm.suggestedSets.push({ id: i });
+            this.exerciseForm.suggestedSets.push({ id: i, measureBy: this.exerciseForm.suggestedSets[this.exerciseForm.suggestedSets.length - 1].measureBy});
         },
 
         deleteSet (i) {
             if (this.exerciseForm.suggestedSets.length > 1) {
                 let index = this.exerciseForm.suggestedSets.findIndex(x => x.id === i)
                 this.exerciseForm.suggestedSets.splice(index, 1);
-                document.activeElement.blur();
             }
+            document.activeElement.blur();
         }
     },
 
@@ -236,6 +261,50 @@ export default {
                 this.imageObjs = [];
             } else if (n.length < o.length) {
                 console.log(n, o);
+            }
+        },
+        // This watcher tests for uniqueness of exercise id.
+        // Will call idUnique watcher when completed.
+        idAttempts: function() {
+            this.exerciseForm.id = this.generateId();
+
+            db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
+                if (!idTestDoc.exists) {
+                    this.idUnique = true;
+                } else {
+                    this.idAttempts ++;
+                }
+            })
+        },
+
+        // Once we know id is unique, we can get started on uploading.
+        // Will call imagesUploaded watcher when completed.
+        idUnique: function() {
+            if (this.idUnique) {
+                // We upload images first so their references can be added to the Exercise doc.
+                this.imageObjs.forEach(img => {
+                    let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + ".jpg")
+
+                    imageRef.put(img.file).then(() => {
+                        this.exerciseForm.imgPaths.push(imageRef.fullPath);
+                        this.imagesUploaded ++;
+                    })
+                })
+            }
+        },
+
+        // Once our images have uploaded, we can get started on uploading the exercise doc.
+        imagesUploaded: function() {
+            if (this.imagesUploaded >= this.imageObjs.length) {
+                db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
+                    console.log(this);
+                    // Doc now created, lets push the exercise ID to the user doc.
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).update({
+                        exercises: firebase.firestore.FieldValue.arrayUnion(this.exerciseForm.id)
+                    }).then(() => {
+                        this.$router.push("/exercises/" + this.exerciseForm.id);
+                    })
+                })
             }
         }
 
