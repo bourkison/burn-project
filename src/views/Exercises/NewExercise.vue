@@ -78,6 +78,7 @@ export default {
             isLoading: false,
             imageFiles: [],
             imageObjs: [],
+            imgIterator: 0,
             errorMessage: '',
 
             // Vuetify:
@@ -90,27 +91,55 @@ export default {
 
     methods: {
         handleFileUpload(e) {
-            let i = 0;
-            e.forEach(file => {
-                this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) })
-                i++;
+            // Check that there has been a change in this input.
+            let change = false;
+            if (this.imageObjs.length === 0) {
+                change = true;
+            } else {
+                e.forEach(newInput => {
+                    let found = false;
+                    this.imageObjs.forEach (oldInput => {
+                        if (newInput.name == oldInput.file.name) {
+                            found = true;
+                        }
+                    })
+
+                    if (!found) {
+                        change = true;
+                    }
+                })
+            }
+
+            console.log(change);
+
+            // If there's been a change, push new file into imageObjs.
+            if (change) {           
+                e.forEach(file => {
+                    const i = this.imgIterator;
+                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) })
+                    this.imgIterator ++;
+                })
+            }
+
+            // Regardless, reset imageFiles to be equal to the files in imageObjs.
+            this.imageFiles = [];
+            this.imageObjs.forEach(img => {
+                this.imageFiles.push(img.file);
             })
             console.log(this.imageFiles);
             console.log(this.imageObjs);
         },
 
         createExercise() {
-            console.log(this.exerciseForm.description);
+            console.log(this.exerciseForm);
         },
 
         updateDescription(t) {
             this.exerciseForm.description = t;
-            console.log(t);
         },
 
         updateMgs (mg) {
             this.muscleGroups = mg;
-            console.log("New Exercise:", this.muscleGroups);
         }
     },
 
