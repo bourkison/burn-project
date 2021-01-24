@@ -11,11 +11,16 @@
 
 <template>
     <v-container class="commentSection">
-        <div class="lcsCont">
-            <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
-            <v-icon large @click="viewComments = !viewComments">mdi-comment-outline</v-icon>
-            <v-icon large>mdi-share-outline</v-icon>
-        </div>
+        <v-row class="lcsCont">
+            <v-col cols="12" sm="6">
+                <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
+                <v-icon large @click="toggleComments">mdi-comment-outline</v-icon>
+                <v-icon large>mdi-share-outline</v-icon>
+            </v-col>
+            <v-col cols="!2" sm="6" align="right">
+                <v-icon v-if="isFollowable" large @click="handleFollow" :color="followIconColor">mdi-plus-circle-outline</v-icon>
+            </v-col>
+        </v-row>
         <div v-if="viewComments">
             <v-card v-if="comments.length == 0"><em>No comments have been added. Add the first one?</em></v-card>
             <Comment v-for="comment in comments" :comment="comment" :collection-path="collectionPath" :doc-id="docId" :key="comment.id"></Comment>
@@ -41,6 +46,10 @@ export default {
         isLiked: {
             type: String,
             required: true
+        },
+        followableComponent: {
+            type: Boolean,
+            required: true
         }
     },
     data() {
@@ -54,10 +63,14 @@ export default {
             pageType: '',
             viewComments: false,
             errorMessage: '',
+            isFollowable: false,
+            isFollowed: '',
 
             // Vuetify:
             likeIcon: '',
-            likeIconColor: ''
+            likeIconColor: '',
+            followIcon: '',
+            followIconColor: ''
         }
     },
 
@@ -66,6 +79,7 @@ export default {
         if (this.$props.exerciseId) {
             this.collectionPath = db.collection("exercises");
             this.pageType = "exercise";
+            this.collectionPathString = "exercises";
             this.docId = this.$props.exerciseId;
         }   
 
@@ -77,6 +91,26 @@ export default {
             this.likeIcon = "mdi-heart-outline";
             this.likeIconColor = "";
         }
+
+        // Check if followed or not.
+        this.isFollowable = this.$props.followableComponent;
+        console.log(this.isFollowable);
+        if (this.isFollowable) {
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).get().then(docRef => {
+                if (docRef.exists) {
+                    this.isFollowed = docRef.id; // Collection document ID.
+                    if (!docRef.data().isFollow) {
+                        this.isFollowable = false;
+                    }
+                } else {
+                    this.isFollowed = '';
+                }
+            }).catch(e => {
+                this.errorMessage = "Error checking if following or not: " + e;
+                console.log(this.errorMessage);
+            })
+        }
+        
 
         // Need to pull existing comments.
         this.collectionPath.doc(this.$props.exerciseId).collection("comments").get().then(commentSnapshot => {
@@ -90,7 +124,7 @@ export default {
     },
 
     methods: {
-        toggleComment: function() {
+        toggleComments: function() {
             this.viewComments = !this.viewComments;
             document.activeElement.blur();
         },
@@ -121,7 +155,7 @@ export default {
                 this.likeIcon = "mdi-heart-outline";
                 this.likeIconColor = "";
 
-                // First delete like in the exercise document.
+                // First delete like in the relevant document.
                 this.collectionPath.doc(this.docId).collection("likes").doc(this.$props.isLiked).delete().then(() => {
                     // Now delete like in the user document.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked).delete().then(() => {
@@ -137,6 +171,56 @@ export default {
             }
 
             document.activeElement.blur();
+        },
+
+        handleFollow: function() {
+            if (this.isFollowable) {
+                // Following is basically the same as a like.
+                // Though instead of adding to a "likes" collection in the user doc, we just add to the relevant collection.
+                // That way we differ between created and followed by the createdBy value.
+                // In the relevant collection, follow IDs will be the User ID.
+                // In the User collection, follows will be the document ID.
+                if (!this.isFollowed) {
+                    // Follow.
+                    this.followIcon = "mdi-plus-circle";
+                    this.followIconColor = "light-green ligten-1";
+
+                    // First add to the relevant document.
+                    let followPayload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid }, createdAt: new Date() }
+                    this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid).set(followPayload).then(() => {
+                        followPayload.isFollow = true;
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).set(followPayload).then(() => {
+                            this.isFollowed = this.docId;
+                        }).catch(e => {
+                            this.errorMessage = "Error creating follow. Error pushing to user's follows: " + e;
+                            console.log(this.errorMessage);
+                        })
+                    }).catch(e => {
+                        this.errorMessage = "Error creating follow. Error pushing to document's follows: " + e;
+                        console.log(this.errorMessage);
+                    })
+                } else {
+                    // Unfollow.
+                    this.followIcon = "mdi-plus-circle-outline";
+                    this.followIconColor = "";
+
+                    // Delete the follow document in the relevant collection.
+                    this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid).delete().then(() => {
+                        // Delete the document from the users collection.
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.isFollowed).delete().then(() => {
+                            this.isFollowed = '';
+                        }).catch(e => {
+                            this.errorMessage = "Error deleting follow. Error deleting from user's follows: " + e;
+                            console.log(this.errorMessage);
+                        })
+                    }).catch(e => {
+                        this.errorMessage = "Error deleting follow. Error deleting from document's follows: " + e;
+                        console.log(this.errorMessage);
+                    })
+                    console.log("Already followed!");
+                }    
+                document.activeElement.blur();
+            }
         },
 
         addComment: function() {
@@ -171,6 +255,17 @@ export default {
             } else if (!n && n != o) {
                 this.likeIcon = "mdi-heart-outline";
                 this.likeIconColor = "";
+            }
+        },
+
+        // Alter icon based on isFollowed changes.
+        isFollowed: function(n, o) {
+            if (n && n != o) {
+                this.followIcon = "mdi-plus-circle";
+                this.followIconColor = "light-green lighten-1"
+            } else {
+                this.followIcon = "mdi-plus-circle-outlined";
+                this.followIconColor = "";
             }
         }
     }

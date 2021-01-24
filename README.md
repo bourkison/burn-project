@@ -29,3 +29,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 * Add User avatars to all created by fields.
 * In "New Exercise", on "Add Set" button, auto focus to the new reps count.
 * Auto push .catch error messages to the database for error tracking later on.
+* User profile work with both username and user ID
