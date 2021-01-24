@@ -131,6 +131,8 @@ export default {
         
 
         // Need to pull existing comments.
+        // TODO: Alter DB so that most relevant 5 are in exercise doc (using Firebase functions),
+        // // Then toggle comments calles this function instead (with pagination) 
         this.collectionPath.doc(this.$props.exerciseId).collection("comments").get().then(commentSnapshot => {
             commentSnapshot.forEach(comment => {
                 let c = comment.data();
