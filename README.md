@@ -25,4 +25,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## TODO:
 
-* Update the createdBy value to be an object with username and ID. This will mean I will not have to pull the userData when writing "created by" on view.
+* Add iamge editing on upload
+* Add User avatars to all created by fields.
+* In "New Exercise", on "Add Set" button, auto focus to the new reps count.
+* Auto push .catch error messages to the database for error tracking later on.

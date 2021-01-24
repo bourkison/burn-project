@@ -18,7 +18,7 @@
         </div>
         <div v-if="viewComments">
             <v-card v-if="comments.length == 0"><em>No comments have been added. Add the first one?</em></v-card>
-            <Comment v-for="comment in comments" :comment="comment" :key="comment.id"></Comment>
+            <Comment v-for="comment in comments" :comment="comment" :collection-path="collectionPath" :doc-id="docId" :key="comment.id"></Comment>
             <v-form style="padding:10px" @submit.prevent="addComment">
                 <v-text-field v-model="newComment.content" label="New Comment" append-icon="mdi-send" @click:append="addComment"></v-text-field>
             </v-form>
@@ -81,8 +81,9 @@ export default {
         // Need to pull existing comments.
         this.collectionPath.doc(this.$props.exerciseId).collection("comments").get().then(commentSnapshot => {
             commentSnapshot.forEach(comment => {
-                this.comments.push(comment.data());
-                this.isLoading = false;
+                let c = comment.data();
+                c.id = comment.id;
+                this.comments.push(c);
             })
         })
 
@@ -100,11 +101,11 @@ export default {
                 this.likeIcon = "mdi-heart";
                 this.likeIconColor = "red darken-2";
 
-                // First create the like in the exercise document.
-                let likePayload = { createdBy: this.$store.state.userProfile.data.uid, createdAt: new Date() }
+                // First create the like in the relevant document.
+                let likePayload = { createdBy: {username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid }, createdAt: new Date() }
                 this.collectionPath.doc(this.docId).collection("likes").add(likePayload).then(likeRef => {
                     // Then create the like in the user document.
-                    likePayload = { type: this.pageType, id: this.docId, createdAt: new Date() }
+                    likePayload = { type: this.pageType, id: this.docId, createdAt: likePayload.createdAt }
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(likeRef.id).set(likePayload).then(() => {
                         this.$emit("likeToggle", likeRef.id);
                     }).catch(e => {
@@ -123,7 +124,6 @@ export default {
                 // First delete like in the exercise document.
                 this.collectionPath.doc(this.docId).collection("likes").doc(this.$props.isLiked).delete().then(() => {
                     // Now delete like in the user document.
-                    // Do this first by getting the reference.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked).delete().then(() => {
                         this.$emit("likeToggle", "");
                     }).catch(e => {

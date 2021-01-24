@@ -15,6 +15,7 @@
                         <v-row class="headerRow" align="center" justify="center">
                             <v-col cols="12" sm="6">
                                 <h1 align="left">{{ exerciseData.name }}</h1>
+                                <router-link :to="'/profile/' + exerciseData.createdBy.username">{{ exerciseData.createdBy.username }}</router-link>
                             </v-col>
                             <v-col cols="12" sm="6">
                                 <div align="right">
@@ -150,9 +151,8 @@ export default {
                 this.exerciseExists = true;
                 this.starsAmount = this.exerciseData.difficulty;
                 // Check if the user has liked.
-                db.collection("exercises").doc(this.$route.params.exerciseid).collection("likes").where("createdBy", "==", this.$store.state.userProfile.data.uid).get().then(likeSnapshot => {
+                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.exerciseid).get().then(likeSnapshot => {
                     likeSnapshot.forEach(like => {
-                        console.log(like.id);
                         if (like.exists) {
                             this.isLiked = like.id;
                         }

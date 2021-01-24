@@ -94,7 +94,6 @@
 </template>
 
 <script>
-import firebase from 'firebase'
 import { db, storage } from '../../firebase'
 import MarkdownInput from '../Utility/MarkdownInput.vue'
 import MuscleGroupSelect from '../Utility/MuscleGroupSelect.vue'
@@ -144,7 +143,7 @@ export default {
     methods: {
         createExercise() {
             this.isLoading = true;
-            this.exerciseForm.createdBy = this.$store.state.userProfile.data.uid;
+            this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username};
             this.exerciseForm.createdAt = new Date();
             
             this.exerciseForm.suggestedSets.forEach (s => {
@@ -306,11 +305,9 @@ export default {
         imagesUploaded: function() {
             if (this.imagesUploaded >= this.imageObjs.length) {
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
-                    console.log(this);
+                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid } }                    
                     // Doc now created, lets push the exercise ID to the user doc.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).update({
-                        exercises: firebase.firestore.FieldValue.arrayUnion(this.exerciseForm.id)
-                    }).then(() => {
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").doc(this.exerciseForm.id).set(exercisePayload).then(() => {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
                     }).catch(e => {
                         this.errorMessage = "Error updating user: " + e;
