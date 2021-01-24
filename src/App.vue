@@ -10,6 +10,7 @@
         ></v-avatar>
         <v-tabs centered class="ml-n9">
           <v-tab key="homeTab" to="/">Home</v-tab>
+          <v-tab v-if="$store.state.userProfile.loggedIn" to="/exercises">Exercises</v-tab>
           <v-tab v-if="$store.state.userProfile.loggedIn" to="/exercises/new">New Exercise</v-tab>
           <v-tab v-if="$store.state.userProfile.loggedIn" @click="signOut()">Sign Out</v-tab>
           <v-tab v-if="!$store.state.userProfile.loggedIn" to="/login">Login</v-tab>

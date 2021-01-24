@@ -5,6 +5,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import NewExercise from '../views/Exercises/NewExercise.vue'
 import ViewExercise from '../views/Exercises/ViewExercise.vue'
+import ViewExercises from '../views/Exercises/ViewExercises.vue'
 import UserProfile from '../views/Users/UserProfile.vue'
 import Profile from '../views/Users/Profile.vue'
 
@@ -57,6 +58,11 @@ const routes = [
     path: '/exercises/:exerciseid',
     name: 'View Exercise',
     component: ViewExercise
+  },
+  {
+    path: '/exercises',
+    name: 'View Exercises',
+    component: ViewExercises
   }
 ]
 

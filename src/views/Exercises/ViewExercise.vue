@@ -175,6 +175,6 @@ export default {
     }
 
     .muscleGroupCont {
-        box-shadow: none;
+        box-shadow: none !important;
     }
 </style>

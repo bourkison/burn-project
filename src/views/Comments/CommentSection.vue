@@ -28,6 +28,22 @@
                 <v-text-field v-model="newComment.content" label="New Comment" append-icon="mdi-send" @click:append="addComment"></v-text-field>
             </v-form>
         </div>
+
+        <v-snackbar
+            v-model="snackbar"
+            :timeout="2000"
+        >
+            {{ snackbarText }}
+
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    color="red"
+                    text
+                    v-bind="attrs"
+                    @click="snackbarHandler"
+                >Dismiss</v-btn>                
+            </template>
+        </v-snackbar>
     </v-container>
 </template>
 
@@ -70,7 +86,10 @@ export default {
             likeIcon: '',
             likeIconColor: '',
             followIcon: '',
-            followIconColor: ''
+            followIconColor: '',
+            snackbar: '',
+            snackbarText: '',
+            initLoad: true
         }
     },
 
@@ -94,14 +113,13 @@ export default {
 
         // Check if followed or not.
         this.isFollowable = this.$props.followableComponent;
-        console.log(this.isFollowable);
         if (this.isFollowable) {
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).get().then(docRef => {
                 if (docRef.exists) {
-                    this.isFollowed = docRef.id; // Collection document ID.
                     if (!docRef.data().isFollow) {
                         this.isFollowable = false;
                     }
+                    this.isFollowed = docRef.id; // Collection document ID.
                 } else {
                     this.isFollowed = '';
                 }
@@ -127,6 +145,19 @@ export default {
         toggleComments: function() {
             this.viewComments = !this.viewComments;
             document.activeElement.blur();
+        },
+
+        snackbarHandler: function(t) {
+            if (t) {
+                this.snackbar = true;
+                if (this.isFollowed) {
+                    this.snackbarText = this.pageType.charAt(0).toUpperCase() + this.pageType.slice(1) + " followed!";
+                } else {
+                    this.snackbarText = this.pageType.charAt(0).toUpperCase() + this.pageType.slice(1) + " unfollowed!";
+                } 
+            } else {
+                this.snackbar = false;
+            }
         },
 
         handleLike: function() {
@@ -191,6 +222,7 @@ export default {
                         followPayload.isFollow = true;
                         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).set(followPayload).then(() => {
                             this.isFollowed = this.docId;
+                            this.snackbarHandler(true);
                         }).catch(e => {
                             this.errorMessage = "Error creating follow. Error pushing to user's follows: " + e;
                             console.log(this.errorMessage);
@@ -209,6 +241,7 @@ export default {
                         // Delete the document from the users collection.
                         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.isFollowed).delete().then(() => {
                             this.isFollowed = '';
+                            this.snackbarHandler(true);
                         }).catch(e => {
                             this.errorMessage = "Error deleting follow. Error deleting from user's follows: " + e;
                             console.log(this.errorMessage);
@@ -217,7 +250,6 @@ export default {
                         this.errorMessage = "Error deleting follow. Error deleting from document's follows: " + e;
                         console.log(this.errorMessage);
                     })
-                    console.log("Already followed!");
                 }    
                 document.activeElement.blur();
             }

@@ -305,7 +305,7 @@ export default {
         imagesUploaded: function() {
             if (this.imagesUploaded >= this.imageObjs.length) {
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
-                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid } }                    
+                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false, createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid } }                    
                     // Doc now created, lets push the exercise ID to the user doc.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").doc(this.exerciseForm.id).set(exercisePayload).then(() => {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
