@@ -157,12 +157,11 @@ export default {
             // let imageRef = storage.child("exercises/" + this.$store.state.userProfile.data.uid + "")            
         },
 
-        generateId() {
+        generateId(n) {
             let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-            // First 8 letters of the name, trimmed and lowercase
-            let id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-";
+            let id = '';
             // 7 random characters
-            for (let i = 0; i < 7; i++) {
+            for (let i = 0; i < n; i++) {
                 id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
             }
             return id;
@@ -273,7 +272,7 @@ export default {
         // This watcher tests for uniqueness of exercise id.
         // Will call idUnique watcher when completed.
         idAttempts: function() {
-            this.exerciseForm.id = this.generateId();
+            this.exerciseForm.id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
 
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
@@ -290,7 +289,7 @@ export default {
             if (this.idUnique) {
                 // We upload images first so their references can be added to the Exercise doc.
                 this.imageObjs.forEach(img => {
-                    let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + ".jpg")
+                    let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4))
 
                     imageRef.put(img.file).then(() => {
                         this.exerciseForm.imgPaths.push(imageRef.fullPath);

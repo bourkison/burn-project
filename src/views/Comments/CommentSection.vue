@@ -27,7 +27,6 @@
 </template>
 
 <script>
-import firebase from 'firebase'
 import { db } from '../../firebase'
 import Comment from './Comment.vue'
 
@@ -40,7 +39,7 @@ export default {
             required: false
         },
         isLiked: {
-            type: Boolean,
+            type: String,
             required: true
         }
     },
@@ -102,13 +101,12 @@ export default {
                 this.likeIconColor = "red darken-2";
 
                 // First create the like in the exercise document.
-                this.collectionPath.doc(this.$props.exerciseId).update({
-                    likes: firebase.firestore.FieldValue.arrayUnion(this.$store.state.userProfile.data.uid)
-                }).then(() => {
+                let likePayload = { createdBy: this.$store.state.userProfile.data.uid, createdAt: new Date() }
+                this.collectionPath.doc(this.docId).collection("likes").add(likePayload).then(likeRef => {
                     // Then create the like in the user document.
-                    let likePayload = { type: this.pageType, id: this.docId, createdAt: new Date() }
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").add(likePayload).then(() => {
-                        this.$emit("likeToggle");
+                    likePayload = { type: this.pageType, id: this.docId, createdAt: new Date() }
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(likeRef.id).set(likePayload).then(() => {
+                        this.$emit("likeToggle", likeRef.id);
                     }).catch(e => {
                         this.errorMessage = "Error creating like. Error pushing to user's likes: " + e;
                         console.log(this.errorMessage)
@@ -123,25 +121,15 @@ export default {
                 this.likeIconColor = "";
 
                 // First delete like in the exercise document.
-                this.collectionPath.doc(this.$props.exerciseId).update({
-                    likes: firebase.firestore.FieldValue.arrayRemove(this.$store.state.userProfile.data.uid)
-                }).then(() => {
+                this.collectionPath.doc(this.docId).collection("likes").doc(this.$props.isLiked).delete().then(() => {
                     // Now delete like in the user document.
                     // Do this first by getting the reference.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.docId).get().then(likeSnapshot => {
-                        // Then deleting the document.
-                        likeSnapshot.forEach(l => {
-                            l.ref.delete().then(() => {
-                                this.$emit("likeToggle");
-                            }).catch(e => {
-                                this.errorMessage = "Error unliking. Error deleting from user's likes: " + e;
-                                console.log(this.errorMessage);
-                            });
-                        })
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked).delete().then(() => {
+                        this.$emit("likeToggle", "");
                     }).catch(e => {
-                        this.errorMessage = "Error unliking. Error finding the like." + e;
-                        console.log(this.errorMessage)
-                    })
+                        this.errorMessage = "Error unliking. Error deleting from user's likes: " + e;
+                        console.log(this.errorMessage);
+                    });
                 }).catch(e => {
                     this.errorMessage = "Error unliking. Error deleting from document' likes" + e;
                     console.log(this.errorMessage);

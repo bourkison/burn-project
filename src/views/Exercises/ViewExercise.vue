@@ -84,7 +84,7 @@ export default {
             isLoading: true,
             exerciseData: {},
             imgUrls: [],
-            isLiked: false,
+            isLiked: '',
 
             // Firebase:
             downloadedImageCounter: 0,
@@ -138,20 +138,27 @@ export default {
             console.log("report");
         },
 
-        likeToggle: function() {
-            this.isLiked = !this.isLiked;
+        likeToggle: function(s) {
+            this.isLiked = s;
         }
     },
 
     watch: {
+        // Done loading the exeracise.
         downloadedImageCounter: function() {
             if (this.downloadedImageCounter >= this.exerciseData.imgPaths.length) {
-                this.isLoading = true;
                 this.exerciseExists = true;
                 this.starsAmount = this.exerciseData.difficulty;
-                if (this.exerciseData.likes) {
-                    this.isLiked = this.exerciseData.likes.includes(this.$store.state.userProfile.data.uid);
-                }
+                // Check if the user has liked.
+                db.collection("exercises").doc(this.$route.params.exerciseid).collection("likes").where("createdBy", "==", this.$store.state.userProfile.data.uid).get().then(likeSnapshot => {
+                    likeSnapshot.forEach(like => {
+                        console.log(like.id);
+                        if (like.exists) {
+                            this.isLiked = like.id;
+                        }
+                    })
+                    this.isLoading = false;
+                });
             }
         }
     }
